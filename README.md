@@ -1,4 +1,4 @@
-# GoLang
+![GitHub Logo](GoLang.png)
 
 ### SETUP ENVIRONMENT
 Download and Install [Go](https://golang.org/doc/install)
