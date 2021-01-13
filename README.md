@@ -80,6 +80,7 @@ func handleRequests(){
 ```
 
 ### GoLang G-ORM Package
+>The GORM is fantastic **ORM library** for Golang, aims to be developer friendly. It is an ORM library for dealing with relational databases
 
 ##### Installing G-ORM Snippet
 ```
