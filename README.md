@@ -85,7 +85,10 @@ func handleRequests(){
 ```
 go get gorm.io/gorm
 ```
-
+##### Create Db file in windows command prompt run this snippet
+```
+fsutil file createnew filename.db 0
+```
 ##### Mind that gorm uses **SQLite**. You need to install **GCC** on your computer using a **ming-w installer** 
 ##### Installing SQLITE with GCC
    1. Install http://msys2.github.io/ **Read the instruction carefully**
