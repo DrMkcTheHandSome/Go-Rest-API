@@ -48,6 +48,8 @@ HMACSHA256(
 
 > The solution would be using JSON web tokens (JWT for short) to log in and authorize users as explained in the simple image below
 
+![JWT Image](jwt.png)
+
 1. The client will log the user in by sending the credentials to the API server.
 2. The API server will validate the user credentials, sign a JWT, and return it in the HTTP response.
 3. The client will use the received JWT to access API resources.
