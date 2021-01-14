@@ -55,10 +55,7 @@ HMACSHA256(
 3. The client will use the received JWT to access API resources.
 4. The API server will validate the JWT and authorize the user to access the resource.
 
-#### References:
- https://learn.vonage.com/blog/2020/03/13/using-jwt-for-authentication-in-a-golang-application-dr/
- https://medium.com/better-programming/hands-on-with-jwt-in-golang-8c986d1bb4c0
- https://www.sohamkamani.com/golang/jwt-authentication/
+
  
  #### Installation
  
@@ -160,3 +157,10 @@ func hashPassword(password string) string {
 	  return nil
  }
 ````
+
+#### References:
+ https://learn.vonage.com/blog/2020/03/13/using-jwt-for-authentication-in-a-golang-application-dr/
+ https://medium.com/better-programming/hands-on-with-jwt-in-golang-8c986d1bb4c0
+ https://www.sohamkamani.com/golang/jwt-authentication/
+ https://stackoverflow.com/questions/47626574/set-cookie-not-being-detected
+ https://tutorialedge.net/golang/authenticating-golang-rest-api-with-jwts/
