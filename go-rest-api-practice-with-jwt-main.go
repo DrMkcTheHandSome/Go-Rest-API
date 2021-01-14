@@ -30,7 +30,6 @@ type User struct {
 type JwtWrapper struct {
 	SecretKey       string
 	Issuer          string
-	ExpirationHours int64
 }
 
 // JwtClaim adds email as a claim to the token
@@ -39,6 +38,10 @@ type JwtClaim struct {
 	jwt.StandardClaims
 }
 
+var jwtKey string = "my_secret_key"
+
+	
+	
 //TO DO: Refactor follow DRY principle & Delegation Principle
 
 // Trigger Functions at start  
@@ -92,7 +95,9 @@ func initRoutesByGorillaMux(){
 // LOGIC
 func createNewProduct(w http.ResponseWriter, r *http.Request) {
     fmt.Println("Endpoint Hit: createNewProduct")
-  db, err := gorm.Open(sqlite.Open("practice.db"), &gorm.Config{})
+	isAuthorize := AuthenticateCurrentUser(w,r)
+         if isAuthorize == nil {
+		  db, err := gorm.Open(sqlite.Open("practice.db"), &gorm.Config{})
     if err != nil {
         panic("failed to connect database")
     }
@@ -101,11 +106,15 @@ func createNewProduct(w http.ResponseWriter, r *http.Request) {
     json.Unmarshal(reqBody, &product)
     db.Create(&Product{Code: product.Code, Price: product.Price})
     json.NewEncoder(w).Encode(product)
+		 }
 }
 
 func returnSingleProduct(w http.ResponseWriter, r *http.Request) {
     fmt.Println("Endpoint Hit: returnSingleProduct")
-db, err := gorm.Open(sqlite.Open("practice.db"), &gorm.Config{})
+	
+	isAuthorize := AuthenticateCurrentUser(w,r)
+         if isAuthorize == nil {
+		 db, err := gorm.Open(sqlite.Open("practice.db"), &gorm.Config{})
     
     if err != nil {
         panic("failed to connect database")
@@ -117,12 +126,16 @@ db, err := gorm.Open(sqlite.Open("practice.db"), &gorm.Config{})
     
     db.First(&product,"code = ?",key)
  
-    json.NewEncoder(w).Encode(product)    
+    json.NewEncoder(w).Encode(product)  
+		}
 }
 
 func returnAllProducts(w http.ResponseWriter, r *http.Request) {
     fmt.Println("Endpoint Hit: returnAllProducts")
-db, err := gorm.Open(sqlite.Open("practice.db"), &gorm.Config{})
+	
+	   	isAuthorize := AuthenticateCurrentUser(w,r)
+         if isAuthorize == nil { 
+		 db, err := gorm.Open(sqlite.Open("practice.db"), &gorm.Config{})
     
     if err != nil {
         panic("failed to connect database")
@@ -131,11 +144,17 @@ db, err := gorm.Open(sqlite.Open("practice.db"), &gorm.Config{})
     var products []Product
     db.Find(&products)
     json.NewEncoder(w).Encode(products)
+		 }
+
 }
 
 func deleteProduct(w http.ResponseWriter, r *http.Request) {
   fmt.Println("Endpoint Hit: deleteProduct")
-  db, err := gorm.Open(sqlite.Open("practice.db"), &gorm.Config{})
+  
+   	isAuthorize := AuthenticateCurrentUser(w,r)
+    
+    if isAuthorize == nil {
+       db, err := gorm.Open(sqlite.Open("practice.db"), &gorm.Config{})
 
     if err != nil {
         panic("failed to connect database")
@@ -147,11 +166,17 @@ func deleteProduct(w http.ResponseWriter, r *http.Request) {
    var product Product
    db.Delete(&product,key)
    returnAllProducts(w,r)
+     }
 } 
 
 func updateProduct(w http.ResponseWriter, r *http.Request){
  fmt.Println("Endpoint Hit: updateProduct")
-  db, err := gorm.Open(sqlite.Open("practice.db"), &gorm.Config{})
+ 
+ 	isAuthorize := AuthenticateCurrentUser(w,r)
+    
+	if isAuthorize == nil {
+	 
+	   db, err := gorm.Open(sqlite.Open("practice.db"), &gorm.Config{})
 
     if err != nil {
         panic("failed to connect database")
@@ -165,6 +190,9 @@ func updateProduct(w http.ResponseWriter, r *http.Request){
     json.Unmarshal(reqBody, &product)
     db.Model(&product).Where("id = ?", key).Updates(Product{Code: product.Code, Price: product.Price})
     json.NewEncoder(w).Encode(product)
+	
+	}
+
 }
 
 func createNewUser(w http.ResponseWriter, r *http.Request){
@@ -185,15 +213,59 @@ func createNewUser(w http.ResponseWriter, r *http.Request){
 
 func returnAllUsers(w http.ResponseWriter, r *http.Request){
     fmt.Println("Endpoint Hit: returnAllUsers")
-    db, err := gorm.Open(sqlite.Open("practice.db"), &gorm.Config{})
-    
-    if err != nil {
-        panic("failed to connect database")
-    }
 	
-    var users []User
-    db.Find(&users)
-    json.NewEncoder(w).Encode(users)
+	isAuthorize := AuthenticateCurrentUser(w,r)
+	
+	if isAuthorize == nil {
+	  db, err := gorm.Open(sqlite.Open("practice.db"), &gorm.Config{})
+        if err != nil {
+          panic("failed to connect database")
+         }
+	  var users []User
+      db.Find(&users)
+      json.NewEncoder(w).Encode(users)
+	 } 
+}
+
+func AuthenticateCurrentUser(w http.ResponseWriter, r *http.Request) error {
+	cookie, err := r.Cookie("token")
+	
+    if err != nil {
+		if err == http.ErrNoCookie {
+			// If the cookie is not set, return an unauthorized status
+			w.WriteHeader(http.StatusUnauthorized)
+			return err
+		}
+		// For any other type of error, return a bad request status
+		w.WriteHeader(http.StatusBadRequest)
+		return err
+	}
+	
+	// Get the JWT string from the cookie
+	token_string := cookie.Value
+	
+	claims := &JwtClaim{}
+	
+	token, err := jwt.ParseWithClaims(token_string, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(jwtKey), nil
+	})
+	
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			w.WriteHeader(http.StatusUnauthorized)
+			return err
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		return err
+	}
+	if !token.Valid {
+		w.WriteHeader(http.StatusUnauthorized)
+		return err
+	}
+	
+    fmt.Println("Authorize! " + claims.Email)
+    //w.Write([]byte(fmt.Sprintf("Welcome %s!", claims.Email)))
+	return nil
 }
 
 func loginUser(w http.ResponseWriter, r *http.Request){
@@ -223,14 +295,13 @@ func loginUser(w http.ResponseWriter, r *http.Request){
 }
 
 func initJWT(w http.ResponseWriter, r *http.Request,user User){
-		jwtWrapper :=  &JwtWrapper {
-		SecretKey:       "verysecretkey",
+	jwtWrapper :=  &JwtWrapper {
+		SecretKey:       jwtKey,
 		Issuer:          "AuthService",
-		ExpirationHours: 24,
 	}
 	
-  // a token that expires in 24 hours
-  	expirationTime := time.Now().Add(1440 * time.Minute)
+    // a token that expires in 5 minutes
+  expirationTime := time.Now().Add(5 * time.Minute)
 	
 	claims := &JwtClaim{
 		Email: user.Email,
@@ -254,7 +325,12 @@ func initJWT(w http.ResponseWriter, r *http.Request,user User){
 		Name:    "token",
 		Value:   tokenString,
 		Expires: expirationTime,
+		Path: "/",
 	})
+	
+	test,errora := r.Cookie("token")
+	fmt.Println(test)
+    fmt.Println(errora)
 	
 	json.NewEncoder(w).Encode(tokenString)
 }

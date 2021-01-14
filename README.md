@@ -113,11 +113,19 @@ func initJWT(w http.ResponseWriter, r *http.Request,user User){
 		Name:    "token",
 		Value:   tokenString,
 		Expires: expirationTime,
+		Path: "/",
 	})
 	
 	json.NewEncoder(w).Encode(tokenString)
 }
 ``` 
+
+####  Handling post authentication routes 
+
+> Now that all logged in clients have session information stored on their end as cookies, we can use it to:
+
+* Authenticate subsequent user requests.
+* Get information about the user making the request
 
 
 ## Bcrypt
