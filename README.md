@@ -124,6 +124,48 @@ func initJWT(w http.ResponseWriter, r *http.Request,user User){
 * Authenticate subsequent user requests.
 * Get information about the user making the request
 
+```
+func AuthenticateCurrentUser(w http.ResponseWriter, r *http.Request) error {
+	cookie, err := r.Cookie("token")
+	
+    if err != nil {
+		if err == http.ErrNoCookie {
+			// If the cookie is not set, return an unauthorized status
+			w.WriteHeader(http.StatusUnauthorized)
+			return err
+		}
+		// For any other type of error, return a bad request status
+		w.WriteHeader(http.StatusBadRequest)
+		return err
+	}
+	
+	// Get the JWT string from the cookie
+	token_string := cookie.Value
+	
+	claims := &JwtClaim{}
+	
+	token, err := jwt.ParseWithClaims(token_string, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(jwtKey), nil
+	})
+	
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			w.WriteHeader(http.StatusUnauthorized)
+			return err
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		return err
+	}
+	if !token.Valid {
+		w.WriteHeader(http.StatusUnauthorized)
+		return err
+	}
+	
+    fmt.Println("Authorize! " + claims.Email)
+    //w.Write([]byte(fmt.Sprintf("Welcome %s!", claims.Email)))
+	return nil
+}
+```
 
 ## Bcrypt
 #### Installation
