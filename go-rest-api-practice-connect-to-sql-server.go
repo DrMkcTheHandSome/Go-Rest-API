@@ -117,26 +117,23 @@ connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
 }
 
 func returnAllProducts(w http.ResponseWriter, r *http.Request) {
-    fmt.Println("Endpoint Hit: returnAllProducts")
+    // fmt.Println("Endpoint Hit: returnAllProducts")
 	
-connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
-   db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
-    if err != nil {
-		fmt.Println("failed to connect database") 
-        panic("failed to connect database")
-    }
+// connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
+   // db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
+    // if err != nil {
+		// fmt.Println("failed to connect database") 
+        // panic("failed to connect database")
+    // }
 	
-	var code string
-	var price uint
-row := db.Table("dbo.products").Where("code = ?", "MKC").Select("code", "price").Row()
-row.Scan(&code, &price)
-    json.NewEncoder(w).Encode(&Product{Code: code, Price: price})
+    // var products []Product
+    // json.NewEncoder(w).Encode(&products)
 }
 
 func deleteProduct(w http.ResponseWriter, r *http.Request) {
   fmt.Println("Endpoint Hit: deleteProduct")
   
-   connectionString := "sqlserver://:@.:1433?database=GoLangDB"
+connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
    db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
     if err != nil {
 		fmt.Println("failed to connect database") 
@@ -146,15 +143,14 @@ func deleteProduct(w http.ResponseWriter, r *http.Request) {
    vars := mux.Vars(r)
     key := vars["id"]
     
-   var product Product
-   db.Delete(&product,key)
+   db.Exec("DELETE FROM products WHERE id = ?", key)
    returnAllProducts(w,r)
 } 
 
 func returnSingleProduct(w http.ResponseWriter, r *http.Request) {
     fmt.Println("Endpoint Hit: returnSingleProduct")
 	
-	connectionString := "sqlserver://:@.:1433?database=GoLangDB"
+connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
    db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
     if err != nil {
 		fmt.Println("failed to connect database") 
@@ -172,7 +168,7 @@ func returnSingleProduct(w http.ResponseWriter, r *http.Request) {
 
 func loginUser(w http.ResponseWriter, r *http.Request){
     fmt.Println("Endpoint Hit: loginUser")
-	 connectionString := "sqlserver://:@.:1433?database=GoLangDB"
+connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
    db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
     if err != nil {
 		fmt.Println("failed to connect database") 
@@ -198,7 +194,7 @@ func loginUser(w http.ResponseWriter, r *http.Request){
 
 func createNewUser(w http.ResponseWriter, r *http.Request){
     fmt.Println("Endpoint Hit: createNewUser")
-	connectionString := "sqlserver://:@.:1433?database=GoLangDB"
+connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
    db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
     if err != nil {
 		fmt.Println("failed to connect database") 
@@ -218,7 +214,7 @@ func createNewUser(w http.ResponseWriter, r *http.Request){
 func returnAllUsers(w http.ResponseWriter, r *http.Request){
     fmt.Println("Endpoint Hit: returnAllUsers")
 	
-	connectionString := "sqlserver://:@.:1433?database=GoLangDB"
+connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
    db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
     if err != nil {
 		fmt.Println("failed to connect database") 
