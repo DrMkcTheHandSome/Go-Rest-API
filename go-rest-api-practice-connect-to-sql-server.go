@@ -18,8 +18,8 @@ import(
 // Global Variables
 type Product struct {
  gorm.Model
- Code string
- Price uint
+ Code string `gorm:"column:code"`
+ Price uint  `gorm:"column:price"`
 }
 
 type User struct{
@@ -54,7 +54,7 @@ func initRoutesByGorillaMux(){
    myRouter.HandleFunc("/product/{id}", updateProduct).Methods("PUT")
    myRouter.HandleFunc("/products", returnAllProducts).Methods("GET")
    myRouter.HandleFunc("/product/{id}", deleteProduct).Methods("DELETE")
-   myRouter.HandleFunc("/product/{code}",returnSingleProduct).Methods("GET")
+   myRouter.HandleFunc("/product/{id}",returnSingleProduct).Methods("GET")
    myRouter.HandleFunc("/user", createNewUser).Methods("POST")
    myRouter.HandleFunc("/user/login", loginUser).Methods("POST")
    myRouter.HandleFunc("/users", returnAllUsers).Methods("GET")
@@ -65,7 +65,7 @@ func initRoutesByGorillaMux(){
 
 func createDatabaseSchema(w http.ResponseWriter, r *http.Request){
  
-connectionString := "sqlserver://:@.:1433?database=GoLangDB"
+connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
  db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
     if err != nil {
 		fmt.Println("failed to connect database") 
@@ -74,8 +74,7 @@ connectionString := "sqlserver://:@.:1433?database=GoLangDB"
  
     // Migrate the schema
 	db.Migrator().CreateTable(&Product{})
-	db.Migrator().CreateTable(&User{})
-	
+	db.Migrator().CreateTable(&User{})	
 }
 
 // LOGIC
@@ -117,17 +116,20 @@ connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
 }
 
 func returnAllProducts(w http.ResponseWriter, r *http.Request) {
-    // fmt.Println("Endpoint Hit: returnAllProducts")
+     fmt.Println("Endpoint Hit: returnAllProducts")
 	
-// connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
-   // db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
-    // if err != nil {
-		// fmt.Println("failed to connect database") 
-        // panic("failed to connect database")
-    // }
+   connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
+    db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
+    if err != nil {
+		 fmt.Println("failed to connect database") 
+        panic("failed to connect database")
+     }
 	
-    // var products []Product
-    // json.NewEncoder(w).Encode(&products)
+    // Get all records
+	var products []Product
+    db.Exec("select * from products").Scan(&products)
+	
+    json.NewEncoder(w).Encode(products)
 }
 
 func deleteProduct(w http.ResponseWriter, r *http.Request) {
@@ -157,12 +159,16 @@ connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
         panic("failed to connect database")
     }
     
+	
     vars := mux.Vars(r)
-    key := vars["code"]
-    var product Product
-    
-    db.First(&product,"code = ?",key)
- 
+    key := vars["id"]
+
+	var product Product
+    db.Exec("select * from products where id = ?",key).Scan(&product)
+		
+    //Multiple Query Example
+    //db.Raw("select code,price from products; drop table product;").First(&product)
+
     json.NewEncoder(w).Encode(product)  
 }
 
@@ -180,10 +186,7 @@ connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
 	var userPayload User
 	json.Unmarshal(reqBody, &user)
 	userPayload = user
-    query := db.Where(&User{Email: user.Email}).First(&user)
-	if query.Error == gorm.ErrRecordNotFound {
-	    fmt.Println("Login Failed")
-	} 
+	db.Exec("select * from users where email = ?",user.Email).Scan(&user)
 	 err = checkPassword(user.Password,userPayload.Password)
 	 if err != nil {
 	    fmt.Println("Login Failed")
@@ -206,6 +209,7 @@ connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
 	var hash_password string = ""
     json.Unmarshal(reqBody, &user)
     hash_password = hashPassword(user.Password)
+    db.Exec("INSERT INTO users (created_at,email,password) VALUES (?,?,?)",time.Now(), user.Email,hash_password)
     db.Create(&User{Email: user.Email, Password: hash_password})
 	user.Password = hash_password
     json.NewEncoder(w).Encode(user)
@@ -221,9 +225,8 @@ connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
         panic("failed to connect database")
     }
 	  var users []User
-      db.Find(&users)
+    db.Exec("select * from users").Scan(&users)
       json.NewEncoder(w).Encode(users)
-	 
 }
 
 func hashPassword(password string) string {
