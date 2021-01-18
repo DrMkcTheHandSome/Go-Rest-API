@@ -38,16 +38,7 @@ var (
 )
 
 
-func homePage(w http.ResponseWriter, r *http.Request){
-    var htmlIndex = `<html>
-<body>
-   <h1>Welcome to the homepage!</h1>
-	<a href="/user/login">Google Log In</a>
-</body>
-</html>`
-	fmt.Fprintf(w, htmlIndex)
-    fmt.Println("Endpoint Hit: homePage")
-}
+
 
 func main() { 
     initializeOauth2Configuration()
@@ -86,29 +77,39 @@ func initRoutesByGorillaMux(){
    myRouter.HandleFunc("/product/{id}", deleteProduct).Methods("DELETE")
    myRouter.HandleFunc("/product/{id}",returnSingleProduct).Methods("GET")
    myRouter.HandleFunc("/user", createNewUser).Methods("POST")
-   myRouter.HandleFunc("/user/login", loginUser).Methods("GET")
+   myRouter.HandleFunc("/user/loginViaGoogle", loginUserViaGoogle).Methods("GET")
+   myRouter.HandleFunc("/user/loginUser", loginUserWithPassword).Methods("POST")
    myRouter.HandleFunc("/users", returnAllUsers).Methods("GET")
    myRouter.HandleFunc("/googlecallback", handleGoogleCallback).Methods("GET")
    log.Fatal(http.ListenAndServe(":9000", myRouter))
 }
 
- 
+// LOGIC
 
 func createDatabaseSchema(w http.ResponseWriter, r *http.Request){
- 
-connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
- db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
-    if err != nil {
-		fmt.Println("failed to connect database") 
-        panic("failed to connect database")
+    connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
+     db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
+        if err != nil {
+            fmt.Println("failed to connect database") 
+            panic("failed to connect database")
+        }
+     
+        // Migrate the schema
+        db.Migrator().CreateTable(&Product{})
+        db.Migrator().CreateTable(&User{})	
     }
- 
-    // Migrate the schema
-	db.Migrator().CreateTable(&Product{})
-	db.Migrator().CreateTable(&User{})	
+
+func homePage(w http.ResponseWriter, r *http.Request){
+    var htmlIndex = `<html>
+<body>
+   <h1>Welcome to the homepage!</h1>
+	<a href="/user/loginViaGoogle">Google Log In</a>
+</body>
+</html>`
+	fmt.Fprintf(w, htmlIndex)
+    fmt.Println("Endpoint Hit: homePage")
 }
 
-// LOGIC
 func createNewProduct(w http.ResponseWriter, r *http.Request) {
     fmt.Println("Endpoint Hit: createNewProduct")
 	
@@ -203,9 +204,16 @@ connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
     json.NewEncoder(w).Encode(product)  
 }
 
-func loginUser(w http.ResponseWriter, r *http.Request){
-    fmt.Println("Endpoint Hit: loginUser")
-    /*
+func loginUserViaGoogle(w http.ResponseWriter, r *http.Request){
+    fmt.Println("Endpoint Hit: loginUserViaGoogle")
+ 
+    url := googleOauthConfig.AuthCodeURL(oauthStateString)
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+}
+
+func loginUserWithPassword(w http.ResponseWriter, r *http.Request){
+    fmt.Println("Endpoint Hit: loginUserWithPassword")
+    
 connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
    db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
     if err != nil {
@@ -225,9 +233,6 @@ connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
 	 } else {
 	    fmt.Println("Login Success")
      }
-     */
-    url := googleOauthConfig.AuthCodeURL(oauthStateString)
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
 func getUserInfo(state string, code string) ([]byte, error) {
