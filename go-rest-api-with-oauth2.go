@@ -30,7 +30,7 @@ type User struct{
  gorm.Model
  Email string    `json:"email" gorm:"unique"` 
  Password string `json:"password"`
- IsEmailVerified uint `json:"verified_email" gorm:"column:is_email_verified"` 
+ IsEmailVerified bool `json:"verified_email" gorm:"column:is_email_verified"` 
 }
 
 type GoogleAuthResponse struct {
@@ -264,6 +264,7 @@ func getUserInfo(state string, code string) ([]byte, error) {
 }
 
 func handleGoogleCallback(w http.ResponseWriter, r *http.Request){
+    fmt.Println("Endpoint Hit: handleGoogleCallback")
     content, err := getUserInfo(r.FormValue("state"), r.FormValue("code"))
 	if err != nil {
 		fmt.Println(err.Error())
@@ -281,6 +282,7 @@ func handleGoogleCallback(w http.ResponseWriter, r *http.Request){
 }
 
 func createAuthGoogleUser(user GoogleAuthResponse){
+    fmt.Println("Endpoint Hit: createAuthGoogleUser")
     var userFromDB User 
     
     db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
@@ -297,6 +299,11 @@ func createAuthGoogleUser(user GoogleAuthResponse){
         }
         db.Exec("INSERT INTO users (created_at,email,password,is_email_verified) VALUES (?,?,?,?)",time.Now(), user.Email,"",user.IsEmailVerified)
     } 
+    
+    if userFromDB.IsEmailVerified == true {
+       // means the user was created and his/her email was verified
+       fmt.Println("Google Login Success")
+    }
 }
 
 func createNewUser(w http.ResponseWriter, r *http.Request){
