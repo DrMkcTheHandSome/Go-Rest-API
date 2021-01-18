@@ -28,7 +28,7 @@ go get golang.org/x/oauth2
 cloud.google.com/go/compute/metadata
 ```
 
-###### Example Code
+###### OAuth Functions
 
 ```
 
