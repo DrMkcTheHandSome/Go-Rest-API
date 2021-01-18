@@ -11,6 +11,9 @@ import(
 "gorm.io/driver/sqlserver"
 "golang.org/x/crypto/bcrypt"
 "time"
+"os"
+"golang.org/x/oauth2"
+"golang.org/x/oauth2/google"
 )
 
 // TO DO: Refactor
@@ -28,13 +31,40 @@ type User struct{
  Password string `json:"password"`
 }
 
+var (
+    googleOauthConfig *oauth2.Config
+    // TODO: randomize it
+	oauthStateString = "pseudo-random"
+)
+
+
 func homePage(w http.ResponseWriter, r *http.Request){
-    fmt.Fprintf(w, "Welcome to the HomePage!")
+    var htmlIndex = `<html>
+<body>
+   <h1>Welcome to the homepage!</h1>
+	<a href="/user/login">Google Log In</a>
+</body>
+</html>`
+	fmt.Fprintf(w, htmlIndex)
     fmt.Println("Endpoint Hit: homePage")
 }
 
 func main() { 
+    initializeOauth2Configuration()
 	handleRequests()
+}
+
+func initializeOauth2Configuration(){
+     // Setup Google's example test keys
+     os.Setenv("CLIENT_ID", "876220489172-i1msr7n6o01anrcanjg3gqj00h08hain.apps.googleusercontent.com")
+     os.Setenv("SECRET_KEY", "H6sWMHe-OiBqC1Nd70prnWvB")
+    googleOauthConfig = &oauth2.Config{
+		RedirectURL:  "http://localhost:9000/googlecallback",
+		ClientID:     os.Getenv("CLIENT_ID"),
+		ClientSecret: os.Getenv("SECRET_KEY"),
+		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
+		Endpoint:     google.Endpoint,
+	}
 }
 
 func handleRequests() {
@@ -56,8 +86,9 @@ func initRoutesByGorillaMux(){
    myRouter.HandleFunc("/product/{id}", deleteProduct).Methods("DELETE")
    myRouter.HandleFunc("/product/{id}",returnSingleProduct).Methods("GET")
    myRouter.HandleFunc("/user", createNewUser).Methods("POST")
-   myRouter.HandleFunc("/user/login", loginUser).Methods("POST")
+   myRouter.HandleFunc("/user/login", loginUser).Methods("GET")
    myRouter.HandleFunc("/users", returnAllUsers).Methods("GET")
+   myRouter.HandleFunc("/googlecallback", handleGoogleCallback).Methods("GET")
    log.Fatal(http.ListenAndServe(":9000", myRouter))
 }
 
@@ -174,6 +205,7 @@ connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
 
 func loginUser(w http.ResponseWriter, r *http.Request){
     fmt.Println("Endpoint Hit: loginUser")
+    /*
 connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
    db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
     if err != nil {
@@ -192,7 +224,41 @@ connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
 	    fmt.Println("Login Failed")
 	 } else {
 	    fmt.Println("Login Success")
-	 }
+     }
+     */
+    url := googleOauthConfig.AuthCodeURL(oauthStateString)
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+}
+
+func getUserInfo(state string, code string) ([]byte, error) {
+    if state != oauthStateString {
+		return nil, fmt.Errorf("invalid oauth state")
+	}
+	token, err := googleOauthConfig.Exchange(oauth2.NoContext, code)
+	if err != nil {
+		return nil, fmt.Errorf("code exchange failed: %s", err.Error())
+	}
+	response, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.AccessToken)
+	if err != nil {
+		return nil, fmt.Errorf("failed getting user info: %s", err.Error())
+	}
+	defer response.Body.Close()
+	contents, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed reading response body: %s", err.Error())
+	}
+	return contents, nil
+}
+
+func handleGoogleCallback(w http.ResponseWriter, r *http.Request){
+    fmt.Println(r.FormValue("state"))
+    content, err := getUserInfo(r.FormValue("state"), r.FormValue("code"))
+	if err != nil {
+		fmt.Println(err.Error())
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+	fmt.Fprintf(w, "Content: %s\n", content)
 }
 
 func createNewUser(w http.ResponseWriter, r *http.Request){
