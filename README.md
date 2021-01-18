@@ -125,3 +125,4 @@ func handleGoogleCallback(w http.ResponseWriter, r *http.Request){
 
 * https://itnext.io/getting-started-with-oauth2-in-go-1c692420e03
 * https://github.com/douglasmakey/oauth2-example 
+* https://github.com/markbates/goth 
