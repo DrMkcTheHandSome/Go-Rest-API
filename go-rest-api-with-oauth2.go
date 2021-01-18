@@ -14,6 +14,7 @@ import(
 "os"
 "golang.org/x/oauth2"
 "golang.org/x/oauth2/google"
+"math/rand"
 )
 
 // TO DO: Refactor
@@ -38,10 +39,13 @@ type GoogleAuthResponse struct {
     IsEmailVerified bool `json:"verified_email"` 
 }
 
+const (
+ lettersWithNumbers = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+)
 var (
     googleOauthConfig *oauth2.Config
     connectionString = "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
-    // TODO: randomize it
+    // NOTE: randomize it
 	oauthStateString = "pseudo-random"
 )
 
@@ -53,8 +57,10 @@ func main() {
 	handleRequests()
 }
 
+
 func initializeOauth2Configuration(){
      // Setup Google's example test keys
+     oauthStateString = RandStringBytes(14)
      os.Setenv("CLIENT_ID", "876220489172-i1msr7n6o01anrcanjg3gqj00h08hain.apps.googleusercontent.com")
      os.Setenv("SECRET_KEY", "H6sWMHe-OiBqC1Nd70prnWvB")
     googleOauthConfig = &oauth2.Config{
@@ -93,6 +99,14 @@ func initRoutesByGorillaMux(){
 }
 
 // LOGIC
+
+func RandStringBytes(n int) string {
+    b := make([]byte, n)
+    for i := range b {
+        b[i] = lettersWithNumbers[rand.Intn(len(lettersWithNumbers))]
+    }
+    return string(b)
+}
 
 func createDatabaseSchema(w http.ResponseWriter, r *http.Request){
      db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
