@@ -29,10 +29,18 @@ type User struct{
  gorm.Model
  Email string    `json:"email" gorm:"unique"` 
  Password string `json:"password"`
+ IsEmailVerified uint `json:"verified_email" gorm:"column:is_email_verified"` 
+}
+
+type GoogleAuthResponse struct {
+    Id string `json:"id"` 
+    Email string `json:"email"` 
+    IsEmailVerified bool `json:"verified_email"` 
 }
 
 var (
     googleOauthConfig *oauth2.Config
+    connectionString = "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
     // TODO: randomize it
 	oauthStateString = "pseudo-random"
 )
@@ -78,7 +86,7 @@ func initRoutesByGorillaMux(){
    myRouter.HandleFunc("/product/{id}",returnSingleProduct).Methods("GET")
    myRouter.HandleFunc("/user", createNewUser).Methods("POST")
    myRouter.HandleFunc("/user/loginViaGoogle", loginUserViaGoogle).Methods("GET")
-   myRouter.HandleFunc("/user/loginUser", loginUserWithPassword).Methods("POST")
+   myRouter.HandleFunc("/user/login", loginUserWithPassword).Methods("POST")
    myRouter.HandleFunc("/users", returnAllUsers).Methods("GET")
    myRouter.HandleFunc("/googlecallback", handleGoogleCallback).Methods("GET")
    log.Fatal(http.ListenAndServe(":9000", myRouter))
@@ -87,10 +95,8 @@ func initRoutesByGorillaMux(){
 // LOGIC
 
 func createDatabaseSchema(w http.ResponseWriter, r *http.Request){
-    connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
      db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
         if err != nil {
-            fmt.Println("failed to connect database") 
             panic("failed to connect database")
         }
      
@@ -113,10 +119,8 @@ func homePage(w http.ResponseWriter, r *http.Request){
 func createNewProduct(w http.ResponseWriter, r *http.Request) {
     fmt.Println("Endpoint Hit: createNewProduct")
 	
-connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
    db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
     if err != nil {
-		fmt.Println("failed to connect database") 
         panic("failed to connect database")
     }
     reqBody, _ := ioutil.ReadAll(r.Body)
@@ -129,10 +133,8 @@ connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
 func updateProduct(w http.ResponseWriter, r *http.Request){
  fmt.Println("Endpoint Hit: updateProduct")
  
-connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
    db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
     if err != nil {
-		fmt.Println("failed to connect database") 
         panic("failed to connect database")
     }
 
@@ -150,10 +152,8 @@ connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
 func returnAllProducts(w http.ResponseWriter, r *http.Request) {
      fmt.Println("Endpoint Hit: returnAllProducts")
 	
-   connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
     db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
     if err != nil {
-		 fmt.Println("failed to connect database") 
         panic("failed to connect database")
      }
 	
@@ -167,10 +167,8 @@ func returnAllProducts(w http.ResponseWriter, r *http.Request) {
 func deleteProduct(w http.ResponseWriter, r *http.Request) {
   fmt.Println("Endpoint Hit: deleteProduct")
   
-connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
    db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
     if err != nil {
-		fmt.Println("failed to connect database") 
         panic("failed to connect database")
     }
 
@@ -184,10 +182,8 @@ connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
 func returnSingleProduct(w http.ResponseWriter, r *http.Request) {
     fmt.Println("Endpoint Hit: returnSingleProduct")
 	
-connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
    db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
     if err != nil {
-		fmt.Println("failed to connect database") 
         panic("failed to connect database")
     }
     
@@ -214,10 +210,8 @@ func loginUserViaGoogle(w http.ResponseWriter, r *http.Request){
 func loginUserWithPassword(w http.ResponseWriter, r *http.Request){
     fmt.Println("Endpoint Hit: loginUserWithPassword")
     
-connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
    db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
     if err != nil {
-		fmt.Println("failed to connect database") 
         panic("failed to connect database")
     }
 	
@@ -256,22 +250,45 @@ func getUserInfo(state string, code string) ([]byte, error) {
 }
 
 func handleGoogleCallback(w http.ResponseWriter, r *http.Request){
-    fmt.Println(r.FormValue("state"))
     content, err := getUserInfo(r.FormValue("state"), r.FormValue("code"))
 	if err != nil {
 		fmt.Println(err.Error())
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
-	}
-	fmt.Fprintf(w, "Content: %s\n", content)
+    }
+    
+    var googleAuthResponse GoogleAuthResponse 
+    if err = json.Unmarshal(content, &googleAuthResponse); err != nil {
+        fmt.Println(err)
+    } else {
+        createAuthGoogleUser(googleAuthResponse)
+        fmt.Fprintf(w, "Content: %s\n", googleAuthResponse)
+    }
+}
+
+func createAuthGoogleUser(user GoogleAuthResponse){
+    var userFromDB User 
+    
+    db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
+    if err != nil {
+        panic("failed to connect database")
+    }
+
+    db.Exec("select * from users where email = ?",user.Email).Scan(&userFromDB)
+    if userFromDB.Email == "" {
+        // If not Exist Create User in DB
+        db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
+        if err != nil {
+            panic("failed to connect database")
+        }
+        db.Exec("INSERT INTO users (created_at,email,password,is_email_verified) VALUES (?,?,?,?)",time.Now(), user.Email,"",user.IsEmailVerified)
+    } 
 }
 
 func createNewUser(w http.ResponseWriter, r *http.Request){
     fmt.Println("Endpoint Hit: createNewUser")
-connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
    db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
     if err != nil {
-		fmt.Println("failed to connect database") 
         panic("failed to connect database")
     }
     
@@ -280,7 +297,7 @@ connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
 	var hash_password string = ""
     json.Unmarshal(reqBody, &user)
     hash_password = hashPassword(user.Password)
-    db.Exec("INSERT INTO users (created_at,email,password) VALUES (?,?,?)",time.Now(), user.Email,hash_password)
+    db.Exec("INSERT INTO users (created_at,email,password,is_email_verified) VALUES (?,?,?,?)",time.Now(), user.Email,hash_password,false)
     db.Create(&User{Email: user.Email, Password: hash_password})
 	user.Password = hash_password
     json.NewEncoder(w).Encode(user)
@@ -289,10 +306,8 @@ connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
 func returnAllUsers(w http.ResponseWriter, r *http.Request){
     fmt.Println("Endpoint Hit: returnAllUsers")
 	
-connectionString := "sqlserver://:@127.0.0.1:1433?database=GoLangDB"
    db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
     if err != nil {
-		fmt.Println("failed to connect database") 
         panic("failed to connect database")
     }
 	  var users []User
