@@ -23,24 +23,22 @@ httpSwagger "github.com/swaggo/http-swagger"
 
 // Product represents the model for an Product
 type Product struct {
- gorm.Model
- Code string `gorm:"column:code"`
- Price uint  `gorm:"column:price"`
+Code string `json:"code"`
+Price uint  `json:"price"`
 }
 
 // User represents the model for an User
 type User struct{
-  gorm.Model
- Email string    `json:"email" gorm:"unique"` 
- Password string `json:"password"`
- IsEmailVerified bool `json:"verified_email" gorm:"column:is_email_verified"` 
-}
-
-type GoogleAuthResponse struct {
-    Id string `json:"id"` 
-    Email string `json:"email"` 
-    IsEmailVerified bool `json:"verified_email"` 
-}
+    Email string    `json:"email"` 
+    Password string `json:"password"`
+    IsEmailVerified bool `json:"verified_email"`
+    }
+    
+    type GoogleAuthResponse struct {
+        Id string `json:"id"` 
+        Email string `json:"email"` 
+        IsEmailVerified bool `json:"verified_email"` 
+    }
 
 const (
  lettersWithNumbers = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
@@ -208,7 +206,7 @@ func updateProduct(w http.ResponseWriter, r *http.Request){
 // @Summary Get details of all products
 // @Description Get details of all products
 // @Produce  json
-// @Success 200 {array} Product
+// @Success 200
 // @Router /products [get]
 func returnAllProducts(w http.ResponseWriter, r *http.Request) {
      fmt.Println("Endpoint Hit: returnAllProducts")
@@ -220,7 +218,7 @@ func returnAllProducts(w http.ResponseWriter, r *http.Request) {
 	
     // Get all records
 	var products []Product
-    db.Exec("select * from products").Scan(&products)
+    db.Exec("SELECT * FROM products as Products").Scan(&products)
 	
     json.NewEncoder(w).Encode(products)
 }

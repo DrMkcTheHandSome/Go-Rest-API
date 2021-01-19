@@ -124,13 +124,7 @@ var doc = `{
                 "summary": "Get details of all products",
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/main.Product"
-                            }
-                        }
+                        "description": ""
                     }
                 }
             }
@@ -218,23 +212,10 @@ var doc = `{
         }
     },
     "definitions": {
-        "main.Product": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "description": "gorm.Model",
-                    "type": "string"
-                },
-                "price": {
-                    "type": "integer"
-                }
-            }
-        },
         "main.User": {
             "type": "object",
             "properties": {
                 "email": {
-                    "description": "gorm.Model",
                     "type": "string"
                 },
                 "password": {

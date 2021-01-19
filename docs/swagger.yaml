@@ -1,17 +1,8 @@
 basePath: /
 definitions:
-  main.Product:
-    properties:
-      code:
-        description: gorm.Model
-        type: string
-      price:
-        type: integer
-    type: object
   main.User:
     properties:
       email:
-        description: gorm.Model
         type: string
       password:
         type: string
@@ -92,11 +83,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/main.Product'
-            type: array
+          description: ""
       summary: Get details of all products
   /user: {}
   /user/login:
