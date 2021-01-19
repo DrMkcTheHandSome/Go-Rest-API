@@ -15,6 +15,7 @@ import(
 "golang.org/x/oauth2"
 "golang.org/x/oauth2/google"
 "math/rand"
+_ "docs"
 httpSwagger "github.com/swaggo/http-swagger"
 )
 
@@ -22,14 +23,14 @@ httpSwagger "github.com/swaggo/http-swagger"
 
 // Product represents the model for an Product
 type Product struct {
-//  gorm.Model
+ gorm.Model
  Code string `gorm:"column:code"`
  Price uint  `gorm:"column:price"`
 }
 
 // User represents the model for an User
 type User struct{
-//  gorm.Model
+  gorm.Model
  Email string    `json:"email" gorm:"unique"` 
  Password string `json:"password"`
  IsEmailVerified bool `json:"verified_email" gorm:"column:is_email_verified"` 
