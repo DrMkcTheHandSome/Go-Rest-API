@@ -455,8 +455,3 @@ func hashPassword(password string) string {
 
 	  return nil
  }
-
-
-
-
-
