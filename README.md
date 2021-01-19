@@ -4,3 +4,4 @@
 
 
 
+	db.Raw("select * from products").Scan(&products1)
