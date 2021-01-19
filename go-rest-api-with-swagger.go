@@ -15,19 +15,21 @@ import(
 "golang.org/x/oauth2"
 "golang.org/x/oauth2/google"
 "math/rand"
+httpSwagger "github.com/swaggo/http-swagger"
 )
 
 // TO DO: Refactor
 
-// Global Variables
+// Product represents the model for an Product
 type Product struct {
- gorm.Model
+//  gorm.Model
  Code string `gorm:"column:code"`
  Price uint  `gorm:"column:price"`
 }
 
+// User represents the model for an User
 type User struct{
- gorm.Model
+//  gorm.Model
  Email string    `json:"email" gorm:"unique"` 
  Password string `json:"password"`
  IsEmailVerified bool `json:"verified_email" gorm:"column:is_email_verified"` 
@@ -51,7 +53,13 @@ var (
 
 
 
-
+// @title Users Product Go Rest API
+// @version 1.0
+// @description Go Rest API with SQL SERVER DB
+// @contact.name Marc Kenneth Lomio
+// @contact.email marckenneth.lomio@gmail.com
+// @host localhost:9000
+// @BasePath /
 func main() { 
     initializeOauth2Configuration()
 	handleRequests()
@@ -83,7 +91,7 @@ func initializeRoutes(){
 
 func initRoutesByGorillaMux(){
    myRouter := mux.NewRouter().StrictSlash(true)
-   myRouter.HandleFunc("/", homePage)
+   myRouter.HandleFunc("/", homePage).Methods("GET")
    myRouter.HandleFunc("/migration", createDatabaseSchema).Methods("POST")
    myRouter.HandleFunc("/product", createNewProduct).Methods("POST")
    myRouter.HandleFunc("/product/{id}", updateProduct).Methods("PUT")
@@ -95,6 +103,7 @@ func initRoutesByGorillaMux(){
    myRouter.HandleFunc("/user/login", loginUserWithPassword).Methods("POST")
    myRouter.HandleFunc("/users", returnAllUsers).Methods("GET")
    myRouter.HandleFunc("/googlecallback", handleGoogleCallback).Methods("GET")
+   myRouter.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler)
    log.Fatal(http.ListenAndServe(":9000", myRouter))
 }
 
@@ -108,6 +117,14 @@ func RandStringBytes(n int) string {
     return string(b)
 }
 
+// @Summary Migrate tables to the SQL Server
+// @Description Create database schema
+// @Tags migrations
+// @Accept  json
+// @Produce  json
+// @Param user body User true "Create user"
+// @Success 200
+// @Router /migration [create]
 func createDatabaseSchema(w http.ResponseWriter, r *http.Request){
      db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
         if err != nil {
@@ -119,6 +136,12 @@ func createDatabaseSchema(w http.ResponseWriter, r *http.Request){
         db.Migrator().CreateTable(&User{})	
     }
 
+// homePage godoc
+// @Summary show html that navigates to google auth login
+// @Description 
+// @Produce  json
+// @Success 200
+// @Router / [get]
 func homePage(w http.ResponseWriter, r *http.Request){
     var htmlIndex = `<html>
 <body>
@@ -130,6 +153,14 @@ func homePage(w http.ResponseWriter, r *http.Request){
     fmt.Println("Endpoint Hit: homePage")
 }
 
+// @Summary Create user product 
+// @Description Create the product corresponding by user request
+// @Tags products
+// @Accept  json
+// @Produce  json
+// @Param user body User true "Create user"
+// @Success 200
+// @Router /product [create]
 func createNewProduct(w http.ResponseWriter, r *http.Request) {
     fmt.Println("Endpoint Hit: createNewProduct")
 	
@@ -144,6 +175,14 @@ func createNewProduct(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(product)	 
 }
 
+// @Summary Update product identified by the given productId
+// @Description Update the product corresponding to the input productId
+// @Tags products
+// @Accept  json
+// @Produce  json
+// @Param productId path int true "ID of the product to be updated"
+// @Success 200
+// @Router /product/{id} [update]
 func updateProduct(w http.ResponseWriter, r *http.Request){
  fmt.Println("Endpoint Hit: updateProduct")
  
@@ -163,6 +202,13 @@ func updateProduct(w http.ResponseWriter, r *http.Request){
 
 }
 
+
+// returnAllProducts godoc
+// @Summary Get details of all products
+// @Description Get details of all products
+// @Produce  json
+// @Success 200 {array} Product
+// @Router /products [get]
 func returnAllProducts(w http.ResponseWriter, r *http.Request) {
      fmt.Println("Endpoint Hit: returnAllProducts")
 	
@@ -178,6 +224,14 @@ func returnAllProducts(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(products)
 }
 
+// @Summary Delete product identified by the given productId
+// @Description Delete the product corresponding to the input productId
+// @Tags products
+// @Accept  json
+// @Produce  json
+// @Param productId path int true "ID of the product to be deleted"
+// @Success 204 "No Content"
+// @Router /product/{id} [delete]
 func deleteProduct(w http.ResponseWriter, r *http.Request) {
   fmt.Println("Endpoint Hit: deleteProduct")
   
@@ -193,6 +247,14 @@ func deleteProduct(w http.ResponseWriter, r *http.Request) {
    returnAllProducts(w,r)
 } 
 
+// @Summary retrieve product identified by the given productId
+// @Description retrieve the product corresponding to the input productId
+// @Tags products
+// @Accept  json
+// @Produce  json
+// @Param productId path int true "ID of the product to be retrieve"
+// @Success 200
+// @Router /product/{id} [get]
 func returnSingleProduct(w http.ResponseWriter, r *http.Request) {
     fmt.Println("Endpoint Hit: returnSingleProduct")
 	
@@ -214,6 +276,14 @@ func returnSingleProduct(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(product)  
 }
 
+// @Summary Login user using google account 
+// @Description 
+// @Tags login
+// @Accept  json
+// @Produce  json
+// @Param user body User true "Create user"
+// @Success 200
+// @Router /user/loginViaGoogle [get]
 func loginUserViaGoogle(w http.ResponseWriter, r *http.Request){
     fmt.Println("Endpoint Hit: loginUserViaGoogle")
  
@@ -221,6 +291,14 @@ func loginUserViaGoogle(w http.ResponseWriter, r *http.Request){
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
+// @Summary Login user with password 
+// @Description 
+// @Tags login
+// @Accept  json
+// @Produce  json
+// @Param user body User true "Create user"
+// @Success 200
+// @Router /user/login [get]
 func loginUserWithPassword(w http.ResponseWriter, r *http.Request){
     fmt.Println("Endpoint Hit: loginUserWithPassword")
     
@@ -263,6 +341,12 @@ func getUserInfo(state string, code string) ([]byte, error) {
 	return contents, nil
 }
 
+
+// @Summary Get details of the user
+// @Description Get details of the user
+// @Produce  json
+// @Success 200 Google User Info
+// @Router /googlecallback [get]
 func handleGoogleCallback(w http.ResponseWriter, r *http.Request){
     fmt.Println("Endpoint Hit: handleGoogleCallback")
     content, err := getUserInfo(r.FormValue("state"), r.FormValue("code"))
@@ -306,6 +390,15 @@ func createAuthGoogleUser(user GoogleAuthResponse){
     }
 }
 
+
+// @Summary Create new user 
+// @Description Create user with email & password
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param user body User true "Create user"
+// @Success 200
+// @Router /user [create]
 func createNewUser(w http.ResponseWriter, r *http.Request){
     fmt.Println("Endpoint Hit: createNewUser")
    db, err := gorm.Open(sqlserver.Open(connectionString), &gorm.Config{})
@@ -324,6 +417,12 @@ func createNewUser(w http.ResponseWriter, r *http.Request){
     json.NewEncoder(w).Encode(user)
 }
 
+// returnAllUsers godoc
+// @Summary Get details of all users
+// @Description Get details of all users
+// @Produce  json
+// @Success 200 {array} User
+// @Router /users [get]
 func returnAllUsers(w http.ResponseWriter, r *http.Request){
     fmt.Println("Endpoint Hit: returnAllUsers")
 	
