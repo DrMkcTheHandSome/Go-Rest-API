@@ -9,11 +9,7 @@ import(
 	 "time"
 	)
 
-	type Product struct {
-		gorm.Model 
-		Code string `gorm:"column:code"`
-		Price uint  `gorm:"column:price"`
-		}
+// TO DO: Refactor
 
 	func SchemaMigration(){
 		fmt.Println("services SchemaMigration")
