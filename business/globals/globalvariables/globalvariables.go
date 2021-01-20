@@ -7,4 +7,5 @@ import (
 var (
 	GoogleOauthConfig *oauth2.Config 
 	OauthStateString = ""
+	JwtKey  = "my_secret_key"
 )

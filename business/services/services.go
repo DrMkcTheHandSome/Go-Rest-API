@@ -13,6 +13,9 @@ import(
 	globalvariables "globalvariables"
 	"golang.org/x/oauth2"
 	models "models"
+	jwt "github.com/dgrijalva/jwt-go"
+	constants "constants"
+	"time"
 	)
 
 	func HomePage(w http.ResponseWriter, r *http.Request){
@@ -132,11 +135,11 @@ func LoginUserWithPassword(w http.ResponseWriter, r *http.Request){
 	user = repositories.GetUserByEmail(user.Email)
 	
 	err := helpers.CheckPassword(user.Password,userPayload.Password)
-
 	 if err != nil {
 	    fmt.Println("Login Failed")
 	 } else {
 		fmt.Println("Login Success")
+		InitJWT(w,r,user,globalvariables.JwtKey)
 		w.WriteHeader(http.StatusOK)
      }
 }
@@ -161,7 +164,7 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request){
     if err = json.Unmarshal(content, &googleAuthResponse); err != nil {
         fmt.Println(err)
     } else {
-        CreateAuthGoogleUser(googleAuthResponse)
+        CreateAuthGoogleUser(w,r,googleAuthResponse)
         fmt.Fprintf(w, "Content: %s\n", googleAuthResponse)
     }
 }
@@ -187,7 +190,7 @@ func GetUserInfo(state string, code string) ([]byte, error) {
 	return contents, nil
 }
 
-func CreateAuthGoogleUser(user models.GoogleAuthResponse){
+func CreateAuthGoogleUser(w http.ResponseWriter, r *http.Request,user models.GoogleAuthResponse){
 	fmt.Println("services CreateAuthGoogleUser")
     var userFromDB entities.User 
 	
@@ -206,6 +209,45 @@ func CreateAuthGoogleUser(user models.GoogleAuthResponse){
     
     if userFromDB.IsEmailVerified == true {
        // means the user was created and his/her email was verified
-       fmt.Println("Google Login Success")
+	   fmt.Println("Google Login Success")
+	   InitJWT(w,r,userFromDB,globalvariables.GoogleOauthConfig.ClientSecret)
     }
+}
+
+func InitJWT(w http.ResponseWriter, r *http.Request,user entities.User,secretkey string){
+	jwtWrapper :=  &models.JwtWrapper {
+		SecretKey:   secretkey,
+		Issuer:      constants.AuthService,
+	}
+	
+    // a token that expires in 5 minutes
+  expirationTime := time.Now().Add(5 * time.Minute)
+	
+	claims := &models.JwtClaim{
+		Email: user.Email,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime.Unix(),
+			Issuer:    jwtWrapper.Issuer,
+		},
+	}
+	
+	// generates token 
+   token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+   // Create JWT string
+   fmt.Println("Secret Key" + jwtWrapper.SecretKey)
+   tokenString, err := token.SignedString([]byte(jwtWrapper.SecretKey))
+    if err != nil {
+		// If there is an error in creating the JWT return an internal server error
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	
+	http.SetCookie(w, &http.Cookie{
+		Name:    "token",
+		Value:   tokenString,
+		Expires: expirationTime,
+		Path: "/",
+	})
+	
+	json.NewEncoder(w).Encode(tokenString)
 }
