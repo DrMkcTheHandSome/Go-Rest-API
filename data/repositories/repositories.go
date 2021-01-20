@@ -104,3 +104,14 @@ import(
 	db.Raw("select * from users").Scan(&users)
       return users
 	}
+
+	func GetUserByEmail(email string) entities.User {
+		fmt.Println("repository GetUserByEmail")
+		db, err := gorm.Open(sqlserver.Open(connections.ConnectionString), &gorm.Config{})
+		if err != nil {
+           panic("failed to connect database")
+		   }
+		 var user entities.User
+		 db.Raw("select * from users where email = ?",email).Scan(&user)  
+		 return user
+	}

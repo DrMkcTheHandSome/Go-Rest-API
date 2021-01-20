@@ -32,7 +32,7 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "html Home Page that have link for google log in Oauth2",
+                "summary": "html Home Page that have link for google log-in Oauth2",
                 "responses": {
                     "200": {
                         "description": ""
@@ -200,6 +200,36 @@ var doc = `{
                 "parameters": [
                     {
                         "description": "Create user dto",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.UserDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.UserDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/login": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Login User",
+                "parameters": [
+                    {
+                        "description": "Login user dto",
                         "name": "user",
                         "in": "body",
                         "required": true,

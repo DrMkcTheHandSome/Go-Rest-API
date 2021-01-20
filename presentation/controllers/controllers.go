@@ -28,12 +28,12 @@ import(
 		myRouter.HandleFunc("/product/{id}",services.ReturnSingleProduct).Methods("GET")
 		myRouter.HandleFunc("/user", services.CreateNewUser).Methods("POST")
 		myRouter.HandleFunc("/users", services.ReturnAllUsers).Methods("GET")
+		myRouter.HandleFunc("/user/login", services.LoginUserWithPassword).Methods("POST")
 		myRouter.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler)
 		log.Fatal(http.ListenAndServe(":9000", myRouter))
 
 		/*
 		myRouter.HandleFunc("/user/loginViaGoogle", loginUserViaGoogle).Methods("GET")
-		myRouter.HandleFunc("/user/login", loginUserWithPassword).Methods("POST")
 		myRouter.HandleFunc("/googlecallback", handleGoogleCallback).Methods("GET")
 		*/
 	 }

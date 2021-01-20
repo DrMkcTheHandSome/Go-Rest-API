@@ -74,8 +74,8 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request){
 	   repositories.UpdateProduct(key,product)
 	   product = repositories.GetSingleProduct(key)
 	   json.NewEncoder(w).Encode(product)
-	   w.WriteHeader(http.StatusCreated)
-   }
+	   w.WriteHeader(http.StatusOK)
+	}
 
    func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("services DeleteProduct")
@@ -85,6 +85,7 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request){
   
 	 repositories.DeleteProduct(key)	
 	 ReturnAllProducts(w,r)
+	 w.WriteHeader(http.StatusOK)
   } 
 
 
@@ -98,7 +99,8 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request){
 	hash_password = helpers.HashPassword(user.Password)
 	user = repositories.CreateNewUser(user,hash_password)
 	user.Password = hash_password
-    json.NewEncoder(w).Encode(user)
+	json.NewEncoder(w).Encode(user)
+	w.WriteHeader(http.StatusCreated)
 }
 
 func ReturnAllUsers(w http.ResponseWriter, r *http.Request){
@@ -109,4 +111,28 @@ func ReturnAllUsers(w http.ResponseWriter, r *http.Request){
 	  users = repositories.GetAllUsers() 
 	
 	  json.NewEncoder(w).Encode(users)
+	  w.WriteHeader(http.StatusOK)
+}
+
+func LoginUserWithPassword(w http.ResponseWriter, r *http.Request){
+    fmt.Println("services loginUserWithPassword")
+    	
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	
+	var user entities.User 
+	var userPayload entities.User
+	
+	json.Unmarshal(reqBody, &user)
+	
+	userPayload = user
+	user = repositories.GetUserByEmail(user.Email)
+	
+	err := helpers.CheckPassword(user.Password,userPayload.Password)
+
+	 if err != nil {
+	    fmt.Println("Login Failed")
+	 } else {
+		fmt.Println("Login Success")
+		w.WriteHeader(http.StatusOK)
+     }
 }

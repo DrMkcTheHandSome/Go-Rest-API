@@ -125,3 +125,14 @@ func ReturnAllUsers(w http.ResponseWriter, r *http.Request){
 func HomePage(w http.ResponseWriter, r *http.Request){
     services.HomePage(w,r)
 }
+
+// @Summary Login User
+// @Description 
+// @Tags users
+// @Produce json
+// @Param user body UserDTO true "Login user dto"
+// @Success 200 {object} UserDTO
+// @Router /user/login [post]
+func LoginUserWithPassword(w http.ResponseWriter, r *http.Request){
+    services.LoginUserWithPassword(w,r)
+}
