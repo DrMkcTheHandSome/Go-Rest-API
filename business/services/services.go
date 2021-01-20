@@ -7,8 +7,12 @@ import(
 	"io/ioutil"
 	repositories "repositories"
 	entities "entities"
+	connections "connections"
 	"github.com/gorilla/mux"
 	helpers "helpers"
+	globalvariables "globalvariables"
+	"golang.org/x/oauth2"
+	models "models"
 	)
 
 	func HomePage(w http.ResponseWriter, r *http.Request){
@@ -97,7 +101,7 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request){
 	var hash_password string = ""
     json.Unmarshal(reqBody, &user)
 	hash_password = helpers.HashPassword(user.Password)
-	user = repositories.CreateNewUser(user,hash_password)
+	user = repositories.CreateNewUser(user,hash_password,false)
 	user.Password = hash_password
 	json.NewEncoder(w).Encode(user)
 	w.WriteHeader(http.StatusCreated)
@@ -135,4 +139,73 @@ func LoginUserWithPassword(w http.ResponseWriter, r *http.Request){
 		fmt.Println("Login Success")
 		w.WriteHeader(http.StatusOK)
      }
+}
+
+func LoginUserViaGoogle(w http.ResponseWriter, r *http.Request){
+    fmt.Println("services LoginUserViaGoogle")
+ 
+    url := globalvariables.GoogleOauthConfig.AuthCodeURL(globalvariables.OauthStateString)
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+}
+
+func HandleGoogleCallback(w http.ResponseWriter, r *http.Request){
+    fmt.Println("services handleGoogleCallback")
+    content, err := GetUserInfo(r.FormValue("state"), r.FormValue("code"))
+	if err != nil {
+		fmt.Println(err.Error())
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+    }
+    
+    var googleAuthResponse models.GoogleAuthResponse 
+    if err = json.Unmarshal(content, &googleAuthResponse); err != nil {
+        fmt.Println(err)
+    } else {
+        CreateAuthGoogleUser(googleAuthResponse)
+        fmt.Fprintf(w, "Content: %s\n", googleAuthResponse)
+    }
+}
+
+func GetUserInfo(state string, code string) ([]byte, error) {
+	fmt.Println("services GetUserInfo")
+    if state != globalvariables.OauthStateString {
+		return nil, fmt.Errorf("invalid oauth state")
+	}
+	token, err := globalvariables.GoogleOauthConfig.Exchange(oauth2.NoContext, code)
+	if err != nil {
+		return nil, fmt.Errorf("code exchange failed: %s", err.Error())
+	}
+	response, err := http.Get(connections.GoogleApisOauth2 + token.AccessToken)
+	if err != nil {
+		return nil, fmt.Errorf("failed getting user info: %s", err.Error())
+	}
+	defer response.Body.Close()
+	contents, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed reading response body: %s", err.Error())
+	}
+	return contents, nil
+}
+
+func CreateAuthGoogleUser(user models.GoogleAuthResponse){
+	fmt.Println("services CreateAuthGoogleUser")
+    var userFromDB entities.User 
+	
+	userFromDB = repositories.GetUserByEmail(user.Email)
+  
+    if userFromDB.Email == "" {
+		// If not Exist Create User in DB
+		var newUser = entities.User{
+			Email: user.Email,
+			Password: "",
+			IsEmailVerified: user.IsEmailVerified,
+		}
+
+		userFromDB = repositories.CreateNewUser(newUser,newUser.Password,newUser.IsEmailVerified) 
+    } 
+    
+    if userFromDB.IsEmailVerified == true {
+       // means the user was created and his/her email was verified
+       fmt.Println("Google Login Success")
+    }
 }

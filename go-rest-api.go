@@ -5,6 +5,7 @@ import(
 	_ "docs"
     services "services"
     controllers "controllers"
+    helpers "helpers"
 )
 
 type ProductDTO struct {
@@ -27,6 +28,7 @@ type UserDTO struct{
 // @host localhost:9000
 // @BasePath /
 func main() { 
+    helpers.InitializeOauth2Configuration()
 	controllers.HandleRequests()
 }
 
@@ -135,4 +137,24 @@ func HomePage(w http.ResponseWriter, r *http.Request){
 // @Router /user/login [post]
 func LoginUserWithPassword(w http.ResponseWriter, r *http.Request){
     services.LoginUserWithPassword(w,r)
+}
+
+// @Summary Login user via google account
+// @Description 
+// @Tags users
+// @Produce  json
+// @Success 200
+// @Router /user/loginViaGoogle [get]
+func LoginUserViaGoogle(w http.ResponseWriter, r *http.Request){
+  services.LoginUserViaGoogle(w,r)
+}
+
+// @Summary Google send user data 
+// @Description 
+// @Tags 3rdParty
+// @Produce  json
+// @Success 200
+// @Router /googlecallback [get]
+func HandleGoogleCallback(w http.ResponseWriter, r *http.Request){
+    services.HandleGoogleCallback(w,r)
 }

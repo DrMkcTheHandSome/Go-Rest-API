@@ -40,6 +40,22 @@ var doc = `{
                 }
             }
         },
+        "/googlecallback": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "3rdParty"
+                ],
+                "summary": "Google send user data",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/migration": {
             "post": {
                 "produces": [
@@ -244,6 +260,22 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/main.UserDTO"
                         }
+                    }
+                }
+            }
+        },
+        "/user/loginViaGoogle": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Login user via google account",
+                "responses": {
+                    "200": {
+                        "description": ""
                     }
                 }
             }

@@ -33,6 +33,16 @@ paths:
         "200":
           description: ""
       summary: html Home Page that have link for google log-in Oauth2
+  /googlecallback:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: Google send user data
+      tags:
+      - 3rdParty
   /migration:
     post:
       produces:
@@ -164,6 +174,16 @@ paths:
           schema:
             $ref: '#/definitions/main.UserDTO'
       summary: Login User
+      tags:
+      - users
+  /user/loginViaGoogle:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: Login user via google account
       tags:
       - users
   /users:
