@@ -47,7 +47,7 @@ func ReturnAllProducts(w http.ResponseWriter, r *http.Request){
 // @Description 
 // @Tags products
 // @Produce  json
-// @Param product body ProductDTO true "Create product"
+// @Param product body ProductDTO true "Create product dto"
 // @Success 200 {object} ProductDTO
 // @Router /product [post]
 func CreateNewProduct(w http.ResponseWriter, r *http.Request){
@@ -65,4 +65,16 @@ func GetProduct(w http.ResponseWriter, r *http.Request){
     services.ReturnSingleProduct(w,r)
    }
 
+
+// @Summary Update Product
+// @Description 
+// @Tags products
+// @Produce  json
+// @Param id path string true "Get product by id"
+// @Param product body ProductDTO true "Update product dto"
+// @Success 200 {object} ProductDTO
+// @Router /product/{id} [put]
+func UpdateProduct(w http.ResponseWriter, r *http.Request){
+    services.UpdateProduct(w,r)
+   }
 

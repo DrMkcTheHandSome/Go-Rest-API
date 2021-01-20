@@ -29,7 +29,7 @@ paths:
   /product:
     post:
       parameters:
-      - description: Create product
+      - description: Create product dto
         in: body
         name: product
         required: true
@@ -48,7 +48,7 @@ paths:
   /product/{id}:
     get:
       parameters:
-      - description: Get id
+      - description: Get product by id
         in: path
         name: id
         required: true
@@ -61,6 +61,29 @@ paths:
           schema:
             $ref: '#/definitions/main.ProductDTO'
       summary: Get specific Product
+      tags:
+      - products
+    put:
+      parameters:
+      - description: Get product by id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update product dto
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/main.ProductDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.ProductDTO'
+      summary: Update Product
       tags:
       - products
   /products:

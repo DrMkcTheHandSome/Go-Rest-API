@@ -60,3 +60,12 @@ import(
 		 db.Raw("select * from products where id = ?",productId).Scan(&product)  
 		 return product
 	}
+
+	func UpdateProduct(productId string, product entities.Product) {
+		fmt.Println("repository UpdateProduct")
+		db, err := gorm.Open(sqlserver.Open(connections.ConnectionString), &gorm.Config{})
+		if err != nil {
+           panic("failed to connect database")
+		   }
+		 db.Exec("UPDATE products SET code=?, price = ? WHERE id = ?", product.Code, product.Price, productId)
+	}

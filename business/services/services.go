@@ -52,6 +52,21 @@ func ReturnSingleProduct(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func UpdateProduct(w http.ResponseWriter, r *http.Request){
+	fmt.Println("services updateProduct")
+	   
+	   vars := mux.Vars(r)
+	   key := vars["id"]
+	   reqBody, _ := ioutil.ReadAll(r.Body)
+	   var product entities.Product 
+
+	   json.Unmarshal(reqBody, &product)
+	   repositories.UpdateProduct(key,product)
+	   product = repositories.GetSingleProduct(key)
+	   json.NewEncoder(w).Encode(product)
+	   w.WriteHeader(http.StatusCreated)
+   }
+
 
 
 

@@ -54,7 +54,7 @@ var doc = `{
                 "summary": "Create Product",
                 "parameters": [
                     {
-                        "description": "Create product",
+                        "description": "Create product dto",
                         "name": "product",
                         "in": "body",
                         "required": true,
@@ -85,10 +85,45 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Get id",
+                        "description": "Get product by id",
                         "name": "id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.ProductDTO"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Update Product",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Get product by id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update product dto",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.ProductDTO"
+                        }
                     }
                 ],
                 "responses": {
