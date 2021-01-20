@@ -2,6 +2,8 @@
 
 ### Go Rest API N-tier Architecture
 
+### How to structure codes in GoLang?
+
 > for example, Local module model contains only model.go which has the following content
 
 ```
