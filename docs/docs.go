@@ -27,12 +27,15 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/": {
-            "get": {
+        "/migration": {
+            "post": {
                 "produces": [
                     "application/json"
                 ],
-                "summary": "show html that navigates to google auth login",
+                "tags": [
+                    "migration"
+                ],
+                "summary": "Migrate tables to the SQL Server",
                 "responses": {
                     "200": {
                         "description": ""
@@ -40,189 +43,62 @@ var doc = `{
                 }
             }
         },
-        "/googlecallback": {
-            "get": {
-                "description": "Get details of the user",
+        "/product": {
+            "post": {
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Get details of the user",
+                "tags": [
+                    "products"
+                ],
+                "summary": "Create Product",
+                "parameters": [
+                    {
+                        "description": "Create product",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.ProductDTO"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "Google"
+                            "$ref": "#/definitions/main.ProductDTO"
                         }
-                    }
-                }
-            }
-        },
-        "/migration": {},
-        "/product": {},
-        "/product/{id}": {
-            "get": {
-                "description": "retrieve the product corresponding to the input productId",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "products"
-                ],
-                "summary": "retrieve product identified by the given productId",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the product to be retrieve",
-                        "name": "productId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": ""
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete the product corresponding to the input productId",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "products"
-                ],
-                "summary": "Delete product identified by the given productId",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the product to be deleted",
-                        "name": "productId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
                     }
                 }
             }
         },
         "/products": {
             "get": {
-                "description": "Get details of all products",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Get details of all products",
-                "responses": {
-                    "200": {
-                        "description": ""
-                    }
-                }
-            }
-        },
-        "/user": {},
-        "/user/login": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "login"
+                    "products"
                 ],
-                "summary": "Login user with password",
-                "parameters": [
-                    {
-                        "description": "Create user",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/main.User"
-                        }
-                    }
-                ],
+                "summary": "Get all products",
                 "responses": {
                     "200": {
                         "description": ""
-                    }
-                }
-            }
-        },
-        "/user/loginViaGoogle": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "login"
-                ],
-                "summary": "Login user using google account",
-                "parameters": [
-                    {
-                        "description": "Create user",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/main.User"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": ""
-                    }
-                }
-            }
-        },
-        "/users": {
-            "get": {
-                "description": "Get details of all users",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Get details of all users",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/main.User"
-                            }
-                        }
                     }
                 }
             }
         }
     },
     "definitions": {
-        "main.User": {
+        "main.ProductDTO": {
             "type": "object",
             "properties": {
-                "email": {
+                "code": {
                     "type": "string"
                 },
-                "password": {
-                    "type": "string"
-                },
-                "verified_email": {
-                    "type": "boolean"
+                "price": {
+                    "type": "integer"
                 }
             }
         }
@@ -244,7 +120,7 @@ var SwaggerInfo = swaggerInfo{
 	Host:        "localhost:9000",
 	BasePath:    "/",
 	Schemes:     []string{},
-	Title:       "Users Product Go Rest API",
+	Title:       "Go Rest API",
 	Description: "Go Rest API with SQL SERVER DB",
 }
 

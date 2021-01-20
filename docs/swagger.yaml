@@ -1,13 +1,11 @@
 basePath: /
 definitions:
-  main.User:
+  main.ProductDTO:
     properties:
-      email:
+      code:
         type: string
-      password:
-        type: string
-      verified_email:
-        type: boolean
+      price:
+        type: integer
     type: object
 host: localhost:9000
 info:
@@ -15,126 +13,46 @@ info:
     email: marckenneth.lomio@gmail.com
     name: Marc Kenneth Lomio
   description: Go Rest API with SQL SERVER DB
-  title: Users Product Go Rest API
+  title: Go Rest API
   version: "1.0"
 paths:
-  /:
-    get:
+  /migration:
+    post:
       produces:
       - application/json
       responses:
         "200":
           description: ""
-      summary: show html that navigates to google auth login
-  /googlecallback:
-    get:
-      description: Get details of the user
+      summary: Migrate tables to the SQL Server
+      tags:
+      - migration
+  /product:
+    post:
+      parameters:
+      - description: Create product
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/main.ProductDTO'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            type: Google
-      summary: Get details of the user
-  /migration: {}
-  /product: {}
-  /product/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete the product corresponding to the input productId
-      parameters:
-      - description: ID of the product to be deleted
-        in: path
-        name: productId
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-      summary: Delete product identified by the given productId
-      tags:
-      - products
-    get:
-      consumes:
-      - application/json
-      description: retrieve the product corresponding to the input productId
-      parameters:
-      - description: ID of the product to be retrieve
-        in: path
-        name: productId
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: retrieve product identified by the given productId
+            $ref: '#/definitions/main.ProductDTO'
+      summary: Create Product
       tags:
       - products
   /products:
     get:
-      description: Get details of all products
       produces:
       - application/json
       responses:
         "200":
           description: ""
-      summary: Get details of all products
-  /user: {}
-  /user/login:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: Create user
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/main.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: Login user with password
+      summary: Get all products
       tags:
-      - login
-  /user/loginViaGoogle:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: Create user
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/main.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-      summary: Login user using google account
-      tags:
-      - login
-  /users:
-    get:
-      description: Get details of all users
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/main.User'
-            type: array
-      summary: Get details of all users
+      - products
 swagger: "2.0"

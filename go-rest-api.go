@@ -7,7 +7,12 @@ import(
     controllers "controllers"
 )
 
-// @title Users Product Go Rest API
+type ProductDTO struct {
+    Code string `json:"code"`
+    Price uint  `json:"price"`
+    }
+
+// @title Go Rest API
 // @version 1.0
 // @description Go Rest API with SQL SERVER DB
 // @contact.name Marc Kenneth Lomio
@@ -18,19 +23,35 @@ func main() {
 	controllers.HandleRequests()
 }
 
-// homePage godoc
-// @Summary show html that navigates to google auth login
+// @Summary Migrate tables to the SQL Server
 // @Description 
+// @Tags migration
 // @Produce  json
 // @Success 200
-// @Router / [get]
+// @Router /migration [post]
 func CreateDatabaseSchema(w http.ResponseWriter, r *http.Request){
     services.CreateDatabaseSchema(w,r)
    }
 
-
+// @Summary Get all products
+// @Description 
+// @Tags products
+// @Produce  json
+// @Success 200
+// @Router /products [get]
 func ReturnAllProducts(w http.ResponseWriter, r *http.Request){
     services.ReturnAllProducts(w,r)
+   }
+
+// @Summary Create Product
+// @Description 
+// @Tags products
+// @Produce  json
+// @Param product body ProductDTO true "Create product"
+// @Success 200 {object} ProductDTO
+// @Router /product [post]
+func CreateNewProduct(w http.ResponseWriter, r *http.Request){
+    services.CreateNewProduct(w,r)
    }
 
 

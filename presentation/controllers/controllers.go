@@ -21,15 +21,16 @@ import(
 		myRouter := mux.NewRouter().StrictSlash(true)
 		myRouter.HandleFunc("/migration", services.CreateDatabaseSchema).Methods("POST")
 		myRouter.HandleFunc("/products", services.ReturnAllProducts).Methods("GET")
+		myRouter.HandleFunc("/product", services.CreateNewProduct).Methods("POST")
+		// myRouter.HandleFunc("/product/{id}", updateProduct).Methods("PUT")
+		// myRouter.HandleFunc("/product/{id}", deleteProduct).Methods("DELETE")
+		// myRouter.HandleFunc("/product/{id}",returnSingleProduct).Methods("GET")
 		myRouter.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler)
 		log.Fatal(http.ListenAndServe(":9000", myRouter))
 
 		/*
 		myRouter.HandleFunc("/", homePage).Methods("GET")
-		myRouter.HandleFunc("/product", createNewProduct).Methods("POST")
-		myRouter.HandleFunc("/product/{id}", updateProduct).Methods("PUT")
-		myRouter.HandleFunc("/product/{id}", deleteProduct).Methods("DELETE")
-		myRouter.HandleFunc("/product/{id}",returnSingleProduct).Methods("GET")
+	
 		myRouter.HandleFunc("/user", createNewUser).Methods("POST")
 		myRouter.HandleFunc("/user/loginViaGoogle", loginUserViaGoogle).Methods("GET")
 		myRouter.HandleFunc("/user/login", loginUserWithPassword).Methods("POST")
