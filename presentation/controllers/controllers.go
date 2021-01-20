@@ -26,6 +26,7 @@ import(
 		myRouter.HandleFunc("/product/{id}", services.DeleteProduct).Methods("DELETE")
 		myRouter.HandleFunc("/product/{id}",services.ReturnSingleProduct).Methods("GET")
 		myRouter.HandleFunc("/user", services.CreateNewUser).Methods("POST")
+		myRouter.HandleFunc("/users", services.ReturnAllUsers).Methods("GET")
 		myRouter.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler)
 		log.Fatal(http.ListenAndServe(":9000", myRouter))
 
@@ -33,7 +34,6 @@ import(
 		myRouter.HandleFunc("/", homePage).Methods("GET")
 		myRouter.HandleFunc("/user/loginViaGoogle", loginUserViaGoogle).Methods("GET")
 		myRouter.HandleFunc("/user/login", loginUserWithPassword).Methods("POST")
-		myRouter.HandleFunc("/users", returnAllUsers).Methods("GET")
 		myRouter.HandleFunc("/googlecallback", handleGoogleCallback).Methods("GET")
 		*/
 	 }

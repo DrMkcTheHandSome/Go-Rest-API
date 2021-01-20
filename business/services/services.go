@@ -91,3 +91,13 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request){
 	user.Password = hash_password
     json.NewEncoder(w).Encode(user)
 }
+
+func ReturnAllUsers(w http.ResponseWriter, r *http.Request){
+    fmt.Println("services returnAllUsers")
+	
+	  var users []entities.User
+	
+	  users = repositories.GetAllUsers() 
+	
+	  json.NewEncoder(w).Encode(users)
+}

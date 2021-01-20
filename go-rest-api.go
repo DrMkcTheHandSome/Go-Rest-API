@@ -106,3 +106,13 @@ func DeleteProduct(w http.ResponseWriter, r *http.Request){
 func CreateNewUser(w http.ResponseWriter, r *http.Request){
     services.CreateNewUser(w,r)
    }
+
+// @Summary Get all users
+// @Description 
+// @Tags users
+// @Produce  json
+// @Success 200
+// @Router /users [get]
+func ReturnAllUsers(w http.ResponseWriter, r *http.Request){
+    services.ReturnAllUsers(w,r)
+   }

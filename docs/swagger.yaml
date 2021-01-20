@@ -139,4 +139,14 @@ paths:
       summary: Create User
       tags:
       - users
+  /users:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: Get all users
+      tags:
+      - users
 swagger: "2.0"
