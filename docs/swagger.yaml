@@ -25,6 +25,14 @@ info:
   title: Go Rest API
   version: "1.0"
 paths:
+  /:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: html Home Page that have link for google log in Oauth2
   /migration:
     post:
       produces:

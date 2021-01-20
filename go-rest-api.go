@@ -116,3 +116,12 @@ func CreateNewUser(w http.ResponseWriter, r *http.Request){
 func ReturnAllUsers(w http.ResponseWriter, r *http.Request){
     services.ReturnAllUsers(w,r)
    }
+
+// @Summary html Home Page that have link for google log-in Oauth2
+// @Description 
+// @Produce  json
+// @Success 200
+// @Router / [get]
+func HomePage(w http.ResponseWriter, r *http.Request){
+    services.HomePage(w,r)
+}

@@ -11,7 +11,16 @@ import(
 	helpers "helpers"
 	)
 
-
+	func HomePage(w http.ResponseWriter, r *http.Request){
+		fmt.Println("services homePage")
+		var htmlIndex = `<html>
+	<body>
+	   <h1>Welcome to the homepage!</h1>
+		<a href="/user/loginViaGoogle">Google Log In</a>
+	</body>
+	</html>`
+		fmt.Fprintf(w, htmlIndex)
+	}
 
 func CreateDatabaseSchema(w http.ResponseWriter, r *http.Request){
 	fmt.Println("services CreateDatabaseSchema")

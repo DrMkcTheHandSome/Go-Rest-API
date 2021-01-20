@@ -19,6 +19,7 @@ import(
 	 
 	 func InitRoutesByGorillaMux(){
 		myRouter := mux.NewRouter().StrictSlash(true)
+		myRouter.HandleFunc("/", services.HomePage).Methods("GET")
 		myRouter.HandleFunc("/migration", services.CreateDatabaseSchema).Methods("POST")
 		myRouter.HandleFunc("/products", services.ReturnAllProducts).Methods("GET")
 		myRouter.HandleFunc("/product", services.CreateNewProduct).Methods("POST")
@@ -31,7 +32,6 @@ import(
 		log.Fatal(http.ListenAndServe(":9000", myRouter))
 
 		/*
-		myRouter.HandleFunc("/", homePage).Methods("GET")
 		myRouter.HandleFunc("/user/loginViaGoogle", loginUserViaGoogle).Methods("GET")
 		myRouter.HandleFunc("/user/login", loginUserWithPassword).Methods("POST")
 		myRouter.HandleFunc("/googlecallback", handleGoogleCallback).Methods("GET")
