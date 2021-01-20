@@ -78,3 +78,13 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request){
     services.UpdateProduct(w,r)
    }
 
+// @Summary Delete specific Product
+// @Description 
+// @Tags products
+// @Produce  json
+// @Param id path string true "Delete product by id"
+// @Success 200
+// @Router /product/{id} [delete]
+func DeleteProduct(w http.ResponseWriter, r *http.Request){
+    services.DeleteProduct(w,r)
+   }

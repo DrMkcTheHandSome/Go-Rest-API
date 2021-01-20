@@ -46,6 +46,21 @@ paths:
       tags:
       - products
   /product/{id}:
+    delete:
+      parameters:
+      - description: Delete product by id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: Delete specific Product
+      tags:
+      - products
     get:
       parameters:
       - description: Get product by id

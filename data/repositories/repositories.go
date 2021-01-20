@@ -69,3 +69,13 @@ import(
 		   }
 		 db.Exec("UPDATE products SET code=?, price = ? WHERE id = ?", product.Code, product.Price, productId)
 	}
+
+	func DeleteProduct(productId string){
+		fmt.Println("repository DeleteProduct")
+		db, err := gorm.Open(sqlserver.Open(connections.ConnectionString), &gorm.Config{})
+		if err != nil {
+           panic("failed to connect database")
+		   }
+
+		db.Exec("DELETE FROM products WHERE id = ?", productId)
+	}

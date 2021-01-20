@@ -134,6 +134,29 @@ var doc = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Delete specific Product",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Delete product by id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
             }
         },
         "/products": {

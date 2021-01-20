@@ -67,6 +67,16 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request){
 	   w.WriteHeader(http.StatusCreated)
    }
 
+   func DeleteProduct(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("services DeleteProduct")
+
+	 vars := mux.Vars(r)
+	 key := vars["id"]
+  
+	 repositories.DeleteProduct(key)	
+	 ReturnAllProducts(w,r)
+  } 
+
 
 
 

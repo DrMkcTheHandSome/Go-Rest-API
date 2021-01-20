@@ -23,7 +23,7 @@ import(
 		myRouter.HandleFunc("/products", services.ReturnAllProducts).Methods("GET")
 		myRouter.HandleFunc("/product", services.CreateNewProduct).Methods("POST")
 		myRouter.HandleFunc("/product/{id}", services.UpdateProduct).Methods("PUT")
-		// myRouter.HandleFunc("/product/{id}", deleteProduct).Methods("DELETE")
+		myRouter.HandleFunc("/product/{id}", services.DeleteProduct).Methods("DELETE")
 		myRouter.HandleFunc("/product/{id}",services.ReturnSingleProduct).Methods("GET")
 		myRouter.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler)
 		log.Fatal(http.ListenAndServe(":9000", myRouter))
