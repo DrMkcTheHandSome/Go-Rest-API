@@ -7,6 +7,7 @@ import(
 	"io/ioutil"
 	repositories "repositories"
 	entities "entities"
+	"github.com/gorilla/mux"
 	)
 
 
@@ -35,6 +36,20 @@ func CreateNewProduct(w http.ResponseWriter, r *http.Request){
 	product = repositories.CreateNewProduct(product)
 	json.NewEncoder(w).Encode(product)
 	w.WriteHeader(http.StatusCreated)
+}
+
+func ReturnSingleProduct(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("services returnSingleProduct")
+	
+    vars := mux.Vars(r)
+    key := vars["id"]
+
+	var product entities.Product
+		
+	product = repositories.GetSingleProduct(key)
+
+	json.NewEncoder(w).Encode(product)  
+	w.WriteHeader(http.StatusOK)
 }
 
 

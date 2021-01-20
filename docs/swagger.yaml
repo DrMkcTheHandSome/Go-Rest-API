@@ -45,6 +45,24 @@ paths:
       summary: Create Product
       tags:
       - products
+  /product/{id}:
+    get:
+      parameters:
+      - description: Get id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.ProductDTO'
+      summary: Get specific Product
+      tags:
+      - products
   /products:
     get:
       produces:

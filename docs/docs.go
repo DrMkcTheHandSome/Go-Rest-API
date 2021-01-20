@@ -73,6 +73,34 @@ var doc = `{
                 }
             }
         },
+        "/product/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Get specific Product",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Get id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.ProductDTO"
+                        }
+                    }
+                }
+            }
+        },
         "/products": {
             "get": {
                 "produces": [

@@ -49,3 +49,14 @@ import(
 	   db.Exec("INSERT INTO products (created_at,code,price) VALUES (?,?,?)",time.Now(), product.Code,product.Price)
 	   return product
 	}
+
+	func GetSingleProduct(productId string) entities.Product {
+		fmt.Println("repository GetSingleProduct")
+		db, err := gorm.Open(sqlserver.Open(connections.ConnectionString), &gorm.Config{})
+		if err != nil {
+           panic("failed to connect database")
+		   }
+		 var product entities.Product
+		 db.Raw("select * from products where id = ?",productId).Scan(&product)  
+		 return product
+	}

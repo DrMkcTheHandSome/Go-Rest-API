@@ -54,4 +54,15 @@ func CreateNewProduct(w http.ResponseWriter, r *http.Request){
     services.CreateNewProduct(w,r)
    }
 
+// @Summary Get specific Product
+// @Description 
+// @Tags products
+// @Produce  json
+// @Param id path string true "Get product by id"
+// @Success 200 {object} ProductDTO
+// @Router /product/{id} [get]
+func GetProduct(w http.ResponseWriter, r *http.Request){
+    services.ReturnSingleProduct(w,r)
+   }
+
 
