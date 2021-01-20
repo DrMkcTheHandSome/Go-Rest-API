@@ -20,79 +20,115 @@ import(
 
 	func HomePage(w http.ResponseWriter, r *http.Request){
 		fmt.Println("services homePage")
-		var htmlIndex = `<html>
-	<body>
-	   <h1>Welcome to the homepage!</h1>
-		<a href="/user/loginViaGoogle">Google Log In</a>
-	</body>
-	</html>`
-		fmt.Fprintf(w, htmlIndex)
+		isAuthorize := AuthenticateCurrentUser(w,r,globalvariables.JwtKey)
+		if isAuthorize == nil { 
+			var htmlIndex = `<html>
+			<body>
+			   <h1>Welcome to the homepage!</h1>
+				<a href="/user/loginViaGoogle">Google Log In</a>
+			</body>
+			</html>`
+				fmt.Fprintf(w, htmlIndex)
+	   } else {
+		   w.WriteHeader(http.StatusUnauthorized)
+	   }
 	}
 
 func CreateDatabaseSchema(w http.ResponseWriter, r *http.Request){
 	fmt.Println("services CreateDatabaseSchema")
 	repositories.SchemaMigration()
 	w.WriteHeader(http.StatusCreated)
-	}
+}
 	
 func ReturnAllProducts(w http.ResponseWriter, r *http.Request) {
      fmt.Println("services ReturnAllProducts")
 	
-	var products []entities.Product 
-	products = repositories.GetAllProducts()
-	 json.NewEncoder(w).Encode(products)
-	 w.WriteHeader(http.StatusOK)
+	 isAuthorize := AuthenticateCurrentUser(w,r,globalvariables.JwtKey)
+	 if isAuthorize == nil { 
+		var products []entities.Product 
+		products = repositories.GetAllProducts()
+		 json.NewEncoder(w).Encode(products)
+		 w.WriteHeader(http.StatusOK)
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
+	}
 }
 
 func CreateNewProduct(w http.ResponseWriter, r *http.Request){
     fmt.Println("services CreateNewProduct")
 
-    reqBody, _ := ioutil.ReadAll(r.Body)
-	var product entities.Product 
-	json.Unmarshal(reqBody, &product)
-	product = repositories.CreateNewProduct(product)
-	json.NewEncoder(w).Encode(product)
-	w.WriteHeader(http.StatusCreated)
+	isAuthorize := AuthenticateCurrentUser(w,r,globalvariables.JwtKey)
+
+	if isAuthorize == nil { 
+	
+		reqBody, _ := ioutil.ReadAll(r.Body)
+		var product entities.Product 
+		json.Unmarshal(reqBody, &product)
+		product = repositories.CreateNewProduct(product)
+		json.NewEncoder(w).Encode(product)
+		w.WriteHeader(http.StatusCreated)
+
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
+	}
 }
 
 func ReturnSingleProduct(w http.ResponseWriter, r *http.Request) {
     fmt.Println("services returnSingleProduct")
+	isAuthorize := AuthenticateCurrentUser(w,r,globalvariables.JwtKey)
+
+	if isAuthorize == nil { 
+		vars := mux.Vars(r)
+		key := vars["id"]
 	
-    vars := mux.Vars(r)
-    key := vars["id"]
+		var product entities.Product
+			
+		product = repositories.GetSingleProduct(key)
+	
+		json.NewEncoder(w).Encode(product)  
+		w.WriteHeader(http.StatusOK)
 
-	var product entities.Product
-		
-	product = repositories.GetSingleProduct(key)
-
-	json.NewEncoder(w).Encode(product)  
-	w.WriteHeader(http.StatusOK)
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
+	}
 }
 
 func UpdateProduct(w http.ResponseWriter, r *http.Request){
 	fmt.Println("services updateProduct")
-	   
-	   vars := mux.Vars(r)
-	   key := vars["id"]
-	   reqBody, _ := ioutil.ReadAll(r.Body)
-	   var product entities.Product 
+	isAuthorize := AuthenticateCurrentUser(w,r,globalvariables.JwtKey)
 
-	   json.Unmarshal(reqBody, &product)
-	   repositories.UpdateProduct(key,product)
-	   product = repositories.GetSingleProduct(key)
-	   json.NewEncoder(w).Encode(product)
-	   w.WriteHeader(http.StatusOK)
+	   if isAuthorize == nil { 
+		vars := mux.Vars(r)
+		key := vars["id"]
+		reqBody, _ := ioutil.ReadAll(r.Body)
+		var product entities.Product 
+ 
+		json.Unmarshal(reqBody, &product)
+		repositories.UpdateProduct(key,product)
+		product = repositories.GetSingleProduct(key)
+		json.NewEncoder(w).Encode(product)
+		w.WriteHeader(http.StatusOK)
+
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
 	}
+}
 
    func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("services DeleteProduct")
+	isAuthorize := AuthenticateCurrentUser(w,r,globalvariables.JwtKey)
 
-	 vars := mux.Vars(r)
-	 key := vars["id"]
-  
-	 repositories.DeleteProduct(key)	
-	 ReturnAllProducts(w,r)
-	 w.WriteHeader(http.StatusOK)
+	 if isAuthorize == nil { 
+		vars := mux.Vars(r)
+		key := vars["id"]
+	 
+		repositories.DeleteProduct(key)	
+		ReturnAllProducts(w,r)
+		w.WriteHeader(http.StatusOK)
+
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
+	}
   } 
 
 
@@ -113,12 +149,20 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request){
 func ReturnAllUsers(w http.ResponseWriter, r *http.Request){
     fmt.Println("services returnAllUsers")
 	
-	  var users []entities.User
+	isAuthorize := AuthenticateCurrentUser(w,r,globalvariables.JwtKey)
 	
-	  users = repositories.GetAllUsers() 
+	if isAuthorize == nil { 
+		var users []entities.User
 	
-	  json.NewEncoder(w).Encode(users)
-	  w.WriteHeader(http.StatusOK)
+		users = repositories.GetAllUsers() 
+	  
+		json.NewEncoder(w).Encode(users)
+		w.WriteHeader(http.StatusOK)
+
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
+	}
+	
 }
 
 func LoginUserWithPassword(w http.ResponseWriter, r *http.Request){
@@ -139,6 +183,7 @@ func LoginUserWithPassword(w http.ResponseWriter, r *http.Request){
 	    fmt.Println("Login Failed")
 	 } else {
 		fmt.Println("Login Success")
+		globalvariables.JwtKey = "my_secret_key"
 		InitJWT(w,r,user,globalvariables.JwtKey)
 		w.WriteHeader(http.StatusOK)
      }
@@ -210,7 +255,8 @@ func CreateAuthGoogleUser(w http.ResponseWriter, r *http.Request,user models.Goo
     if userFromDB.IsEmailVerified == true {
        // means the user was created and his/her email was verified
 	   fmt.Println("Google Login Success")
-	   InitJWT(w,r,userFromDB,globalvariables.GoogleOauthConfig.ClientSecret)
+	   globalvariables.JwtKey = globalvariables.GoogleOauthConfig.ClientSecret
+	   InitJWT(w,r,userFromDB,globalvariables.JwtKey)
     }
 }
 
@@ -250,4 +296,45 @@ func InitJWT(w http.ResponseWriter, r *http.Request,user entities.User,secretkey
 	})
 	
 	json.NewEncoder(w).Encode(tokenString)
+}
+
+
+func AuthenticateCurrentUser(w http.ResponseWriter, r *http.Request, jwtKey string) error {
+	cookie, err := r.Cookie("token")
+	
+    if err != nil {
+		if err == http.ErrNoCookie {
+			// If the cookie is not set, return an unauthorized status
+			w.WriteHeader(http.StatusUnauthorized)
+			return err
+		}
+		// For any other type of error, return a bad request status
+		w.WriteHeader(http.StatusBadRequest)
+		return err
+	}
+	
+	// Get the JWT string from the cookie
+	token_string := cookie.Value
+	
+	claims := &models.JwtClaim{}
+	
+	token, err := jwt.ParseWithClaims(token_string, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(jwtKey), nil
+	})
+	
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			w.WriteHeader(http.StatusUnauthorized)
+			return err
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		return err
+	}
+	if !token.Valid {
+		w.WriteHeader(http.StatusUnauthorized)
+		return err
+	}
+	
+    fmt.Println("Authorize! " + claims.Email)
+	return nil
 }
