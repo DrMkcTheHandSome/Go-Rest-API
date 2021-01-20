@@ -12,6 +12,13 @@ type ProductDTO struct {
     Price uint  `json:"price"`
     }
 
+type UserDTO struct{
+        Email string    `json:"email"` 
+        Password string `json:"password"`
+        IsEmailVerified bool `json:"verified_email"`
+        }
+        
+
 // @title Go Rest API
 // @version 1.0
 // @description Go Rest API with SQL SERVER DB
@@ -87,4 +94,15 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request){
 // @Router /product/{id} [delete]
 func DeleteProduct(w http.ResponseWriter, r *http.Request){
     services.DeleteProduct(w,r)
+   }
+
+// @Summary Create User
+// @Description 
+// @Tags users
+// @Produce  json
+// @Param user body UserDTO true "Create user dto"
+// @Success 200 {object} UserDTO
+// @Router /user [post]
+func CreateNewUser(w http.ResponseWriter, r *http.Request){
+    services.CreateNewUser(w,r)
    }

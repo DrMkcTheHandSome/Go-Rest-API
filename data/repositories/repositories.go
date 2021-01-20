@@ -79,3 +79,15 @@ import(
 
 		db.Exec("DELETE FROM products WHERE id = ?", productId)
 	}
+
+	func CreateNewUser(user entities.User, hash_password string) entities.User {
+		fmt.Println("repository CreateNewUser")
+
+		db, err := gorm.Open(sqlserver.Open(connections.ConnectionString), &gorm.Config{})
+		if err != nil {
+           panic("failed to connect database")
+		   }
+		   
+	    db.Exec("INSERT INTO users (created_at,email,password,is_email_verified) VALUES (?,?,?,?)",time.Now(), user.Email,hash_password,false)
+        return user
+	}

@@ -7,6 +7,15 @@ definitions:
       price:
         type: integer
     type: object
+  main.UserDTO:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      verified_email:
+        type: boolean
+    type: object
 host: localhost:9000
 info:
   contact:
@@ -111,4 +120,23 @@ paths:
       summary: Get all products
       tags:
       - products
+  /user:
+    post:
+      parameters:
+      - description: Create user dto
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/main.UserDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.UserDTO'
+      summary: Create User
+      tags:
+      - users
 swagger: "2.0"

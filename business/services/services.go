@@ -8,6 +8,7 @@ import(
 	repositories "repositories"
 	entities "entities"
 	"github.com/gorilla/mux"
+	helpers "helpers"
 	)
 
 
@@ -78,21 +79,15 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request){
   } 
 
 
+  func CreateNewUser(w http.ResponseWriter, r *http.Request){
+    fmt.Println("services createNewUser")
 
-
-
-/* HELPERS */
-
-// func HashPassword(password string) string {
-//     bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-// 	if err != nil {
-// 		return "failed generate bcrypt password"
-// 	}
-    
-// 	var hash_password string = ""
-// 	hash_password = string(bytes)
-
-// 	return hash_password
-// }
-
-
+    reqBody, _ := ioutil.ReadAll(r.Body)
+    var user entities.User 
+	var hash_password string = ""
+    json.Unmarshal(reqBody, &user)
+	hash_password = helpers.HashPassword(user.Password)
+	user = repositories.CreateNewUser(user,hash_password)
+	user.Password = hash_password
+    json.NewEncoder(w).Encode(user)
+}

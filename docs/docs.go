@@ -174,6 +174,36 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/user": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Create User",
+                "parameters": [
+                    {
+                        "description": "Create user dto",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.UserDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.UserDTO"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -185,6 +215,20 @@ var doc = `{
                 },
                 "price": {
                     "type": "integer"
+                }
+            }
+        },
+        "main.UserDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "verified_email": {
+                    "type": "boolean"
                 }
             }
         }
