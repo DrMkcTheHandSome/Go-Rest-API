@@ -34,6 +34,7 @@ func HashPassword(password string) string {
  }
 
  func InitializeOauth2Configuration() {
+	os.Setenv(constants.SendGridAPI, connections.SendGridAPI)
 	// Setup Google's example test keys
 	globalvariables.OauthStateString = RandStringBytes(14)
 	os.Setenv(constants.CLIENT_ID, connections.GoogleClientId)

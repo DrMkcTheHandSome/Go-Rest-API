@@ -18,7 +18,7 @@ import(
 	"time"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
-	//"os"
+	"os"
 	)
 
 	func HomePage(w http.ResponseWriter, r *http.Request){
@@ -141,10 +141,10 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request){
 from := mail.NewEmail("Marc Kenneth Lomio", "mlomio@blastasia.com")
 	subject := "Sending with Twilio SendGrid is Fun"
 	to := mail.NewEmail("Marc Kenneth Lomio", "drmkc@yopmail.com")
-	plainTextContent := "and easy to do anywhere, even with Go"
-	htmlContent := "<strong>and easy to do anywhere, even with Go</strong>"
+	plainTextContent := ""
+	htmlContent := "<h1>Hello World</h1><h6>Mabuhay!</h6>"
 	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
-	client := sendgrid.NewSendClient("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")
+	client := sendgrid.NewSendClient(os.Getenv(constants.SendGridAPI))
 	response, err := client.Send(message)
 	if err != nil {
 		fmt.Println(err)
