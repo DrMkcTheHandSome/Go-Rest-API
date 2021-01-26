@@ -10,8 +10,11 @@ require (
 	entities v1.2.3
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/gorilla/mux v1.8.0
+	github.com/sendgrid/rest v2.6.2+incompatible // indirect
+	github.com/sendgrid/sendgrid-go v3.7.2+incompatible // indirect
 	github.com/swaggo/http-swagger v1.0.0
 	globalvariables v1.2.3
+	golang.org/dl v0.0.0-20210120004500-be2bfd84e4cf // indirect
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
 	golang.org/x/oauth2 v0.0.0-20210113205817-d3ed898aa8a3
 	gorm.io/driver/sqlserver v1.0.5

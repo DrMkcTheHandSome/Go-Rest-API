@@ -16,6 +16,9 @@ import(
 	jwt "github.com/dgrijalva/jwt-go"
 	constants "constants"
 	"time"
+	"github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
+	//"os"
 	)
 
 	func HomePage(w http.ResponseWriter, r *http.Request){
@@ -135,14 +138,29 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request){
   func CreateNewUser(w http.ResponseWriter, r *http.Request){
     fmt.Println("services createNewUser")
 
-    reqBody, _ := ioutil.ReadAll(r.Body)
-    var user entities.User 
-	var hash_password string = ""
-    json.Unmarshal(reqBody, &user)
-	hash_password = helpers.HashPassword(user.Password)
-	user = repositories.CreateNewUser(user,hash_password,false)
-	user.Password = hash_password
-	json.NewEncoder(w).Encode(user)
+from := mail.NewEmail("Marc Kenneth Lomio", "mlomio@blastasia.com")
+	subject := "Sending with Twilio SendGrid is Fun"
+	to := mail.NewEmail("Marc Kenneth Lomio", "drmkc@yopmail.com")
+	plainTextContent := "and easy to do anywhere, even with Go"
+	htmlContent := "<strong>and easy to do anywhere, even with Go</strong>"
+	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
+	client := sendgrid.NewSendClient("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")
+	response, err := client.Send(message)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(response.StatusCode)
+		fmt.Println(response.Body)
+		fmt.Println(response.Headers)
+	}
+    // reqBody, _ := ioutil.ReadAll(r.Body)
+    // var user entities.User 
+	// var hash_password string = ""
+    // json.Unmarshal(reqBody, &user)
+	// hash_password = helpers.HashPassword(user.Password)
+	// user = repositories.CreateNewUser(user,hash_password,false)
+	// user.Password = hash_password
+	// json.NewEncoder(w).Encode(user)
 	w.WriteHeader(http.StatusCreated)
 }
 
@@ -180,7 +198,8 @@ func LoginUserWithPassword(w http.ResponseWriter, r *http.Request){
 	
 	err := helpers.CheckPassword(user.Password,userPayload.Password)
 	 if err != nil {
-	    fmt.Println("Login Failed")
+		fmt.Println("Login Failed")
+		w.WriteHeader(http.StatusBadRequest)
 	 } else {
 		fmt.Println("Login Success")
 		globalvariables.JwtKey = "my_secret_key"
@@ -266,8 +285,8 @@ func InitJWT(w http.ResponseWriter, r *http.Request,user entities.User,secretkey
 		Issuer:      constants.AuthService,
 	}
 	
-    // a token that expires in 5 minutes
-  expirationTime := time.Now().Add(5 * time.Minute)
+    // a token that expires in 2 hours
+  expirationTime := time.Now().Add(120 * time.Minute)
 	
 	claims := &models.JwtClaim{
 		Email: user.Email,
@@ -300,8 +319,9 @@ func InitJWT(w http.ResponseWriter, r *http.Request,user entities.User,secretkey
 
 
 func AuthenticateCurrentUser(w http.ResponseWriter, r *http.Request, jwtKey string) error {
-	cookie, err := r.Cookie("token")
 	
+	cookie, err := r.Cookie("token")
+
     if err != nil {
 		if err == http.ErrNoCookie {
 			// If the cookie is not set, return an unauthorized status
@@ -325,13 +345,16 @@ func AuthenticateCurrentUser(w http.ResponseWriter, r *http.Request, jwtKey stri
 	if err != nil {
 		if err == jwt.ErrSignatureInvalid {
 			w.WriteHeader(http.StatusUnauthorized)
+			fmt.Println(err)
 			return err
 		}
 		w.WriteHeader(http.StatusBadRequest)
+		fmt.Println(err)
 		return err
 	}
 	if !token.Valid {
 		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Println(err)
 		return err
 	}
 	
