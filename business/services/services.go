@@ -421,5 +421,10 @@ func GetUserByAuthCode(w http.ResponseWriter, r *http.Request){
 	authcode := vars["authcode"]
 	var user entities.User 
 	user = repositories.GetUserByAuthCode(authcode)
-	json.NewEncoder(w).Encode(user)
+	fmt.Println(user)
+	if(user.Email == ""){
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		json.NewEncoder(w).Encode(user)
+	}
 }
