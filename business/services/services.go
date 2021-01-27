@@ -147,7 +147,7 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request){
 	user = repositories.GetUserByEmail(user.Email)
 	SendEmailVerification(user.Email, fmt.Sprint(user.ID))
 	json.NewEncoder(w).Encode(user)
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusCreated) 
 }
 
 func ReturnAllUsers(w http.ResponseWriter, r *http.Request){
