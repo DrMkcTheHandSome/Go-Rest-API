@@ -186,6 +186,11 @@ func LoginUserWithPassword(w http.ResponseWriter, r *http.Request){
 	 if err != nil {
 		fmt.Println("Login Failed")
 		w.WriteHeader(http.StatusBadRequest)
+	 } else if !user.IsEmailVerified  {
+
+		fmt.Println("Login Failed, email wasn't verified")
+		w.WriteHeader(http.StatusBadRequest)
+		
 	 } else {
 		fmt.Println("Login Success")
 		globalvariables.JwtKey = "my_secret_key"
