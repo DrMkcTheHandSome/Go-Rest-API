@@ -84,7 +84,7 @@ import(
            panic("failed to connect database")
 		   }
 
-	    db.Exec("INSERT INTO users (created_at,email,password,is_email_verified) VALUES (?,?,?,?)",time.Now(), user.Email,hash_password,is_email_verified)
+		db.Exec("INSERT INTO users (created_at,email,password,is_email_verified) VALUES (?,?,?,?)",time.Now(), user.Email,hash_password,is_email_verified)
         return user
 	}
 

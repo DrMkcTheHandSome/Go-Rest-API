@@ -136,31 +136,17 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request){
 
 
   func CreateNewUser(w http.ResponseWriter, r *http.Request){
-    fmt.Println("services createNewUser")
-
-from := mail.NewEmail("Marc Kenneth Lomio", "mlomio@blastasia.com")
-	subject := "Sending with Twilio SendGrid is Fun"
-	to := mail.NewEmail("Marc Kenneth Lomio", "drmkc@yopmail.com")
-	plainTextContent := ""
-	htmlContent := "<h1>Hello World</h1><h6>Mabuhay!</h6>"
-	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
-	client := sendgrid.NewSendClient(os.Getenv(constants.SendGridAPI))
-	response, err := client.Send(message)
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(response.StatusCode)
-		fmt.Println(response.Body)
-		fmt.Println(response.Headers)
-	}
-    // reqBody, _ := ioutil.ReadAll(r.Body)
-    // var user entities.User 
-	// var hash_password string = ""
-    // json.Unmarshal(reqBody, &user)
-	// hash_password = helpers.HashPassword(user.Password)
-	// user = repositories.CreateNewUser(user,hash_password,false)
-	// user.Password = hash_password
-	// json.NewEncoder(w).Encode(user)
+	fmt.Println("services createNewUser")
+    reqBody, _ := ioutil.ReadAll(r.Body)
+    var user entities.User 
+	var hash_password string = ""
+    json.Unmarshal(reqBody, &user)
+	hash_password = helpers.HashPassword(user.Password)
+	user = repositories.CreateNewUser(user,hash_password,false)
+	user.Password = hash_password
+	user = repositories.GetUserByEmail(user.Email)
+	SendEmailVerification(user.Email)
+	json.NewEncoder(w).Encode(user)
 	w.WriteHeader(http.StatusCreated)
 }
 
@@ -360,4 +346,30 @@ func AuthenticateCurrentUser(w http.ResponseWriter, r *http.Request, jwtKey stri
 	
     fmt.Println("Authorize! " + claims.Email)
 	return nil
+}
+
+func SendEmailVerification(email string) {
+	from := mail.NewEmail("Marc Kenneth Lomio", "mlomio@blastasia.com")
+	subject := "Sending with Twilio SendGrid is Fun"
+	to := mail.NewEmail("Test User", email)
+	plainTextContent := ""
+	htmlContent :=  `<html>
+	<body>
+	<h1> Welcome to GoRestAPI email using send grid! </h1> 
+	<h2> Hi! ` + email + ` </h2>
+	<p>Kindly verify your account <a href='https://www.nba.com/'> <i>here</i> </a></p>
+	</body>
+	</html>
+	`
+
+	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
+	client := sendgrid.NewSendClient(os.Getenv(constants.SendGridAPI))
+	response, err := client.Send(message)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(response.StatusCode)
+		fmt.Println(response.Body)
+		fmt.Println(response.Headers)
+	}
 }
