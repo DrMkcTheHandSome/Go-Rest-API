@@ -280,6 +280,34 @@ var doc = `{
                 }
             }
         },
+        "/user/verification/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Verify user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Get user by id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.UserDTO"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "produces": [

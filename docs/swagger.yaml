@@ -186,6 +186,24 @@ paths:
       summary: Login user via google account
       tags:
       - users
+  /user/verification/{id}:
+    get:
+      parameters:
+      - description: Get user by id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.UserDTO'
+      summary: Verify user
+      tags:
+      - users
   /users:
     get:
       produces:

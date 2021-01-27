@@ -85,7 +85,8 @@ import(
 		   }
 
 		db.Exec("INSERT INTO users (created_at,email,password,is_email_verified) VALUES (?,?,?,?)",time.Now(), user.Email,hash_password,is_email_verified)
-        return user
+		user = GetUserByEmail(user.Email)
+		return user
 	}
 
 	
@@ -110,4 +111,13 @@ import(
 		 var user entities.User
 		 db.Raw("select * from users where email = ?",email).Scan(&user)  
 		 return user
+	}
+
+	func UpdateUserEmailVerification(userId string) {
+		fmt.Println("repository UpdateUser")
+		db, err := gorm.Open(sqlserver.Open(connections.ConnectionString), &gorm.Config{})
+		if err != nil {
+           panic("failed to connect database")
+		   }
+		 db.Exec("UPDATE users SET is_email_verified = 1 WHERE id = ?", userId)
 	}

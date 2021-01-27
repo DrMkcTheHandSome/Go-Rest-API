@@ -109,6 +109,17 @@ func CreateNewUser(w http.ResponseWriter, r *http.Request){
     services.CreateNewUser(w,r)
    }
 
+// @Summary Verify user
+// @Description 
+// @Tags users
+// @Produce  json
+// @Param id path string true "Get user by id"
+// @Success 200 {object} UserDTO
+// @Router /user/verification/{id} [get]
+func VerifyUserEmail(w http.ResponseWriter, r *http.Request){
+    services.VerifyUserEmail(w,r)
+   }
+
 // @Summary Get all users
 // @Description 
 // @Tags users

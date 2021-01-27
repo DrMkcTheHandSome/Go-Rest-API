@@ -145,7 +145,7 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request){
 	user = repositories.CreateNewUser(user,hash_password,false)
 	user.Password = hash_password
 	user = repositories.GetUserByEmail(user.Email)
-	SendEmailVerification(user.Email)
+	SendEmailVerification(user.Email, fmt.Sprint(user.ID))
 	json.NewEncoder(w).Encode(user)
 	w.WriteHeader(http.StatusCreated)
 }
@@ -348,7 +348,7 @@ func AuthenticateCurrentUser(w http.ResponseWriter, r *http.Request, jwtKey stri
 	return nil
 }
 
-func SendEmailVerification(email string) {
+func SendEmailVerification(email string, id string) {
 	from := mail.NewEmail("Marc Kenneth Lomio", "mlomio@blastasia.com")
 	subject := "Sending with Twilio SendGrid is Fun"
 	to := mail.NewEmail("Test User", email)
@@ -357,7 +357,7 @@ func SendEmailVerification(email string) {
 	<body>
 	<h1> Welcome to GoRestAPI email using send grid! </h1> 
 	<h2> Hi! ` + email + ` </h2>
-	<p>Kindly verify your account <a href='https://www.nba.com/'> <i>here</i> </a></p>
+	<p>Kindly verify your account` + `<a href='http://localhost:9000/user/verification/` + id + `'> <i>here</i> </a></p>
 	</body>
 	</html>
 	`
@@ -372,4 +372,17 @@ func SendEmailVerification(email string) {
 		fmt.Println(response.Body)
 		fmt.Println(response.Headers)
 	}
+}
+
+func VerifyUserEmail(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	key := vars["id"]
+	repositories.UpdateUserEmailVerification(key)
+	fmt.Println("services VerifiedUserEmail")
+		var htmlIndex = `<html>
+		<body>
+		   <h1>Your email was verified!</h1>
+		</body>
+		</html>`
+	fmt.Fprintf(w, htmlIndex)
 }

@@ -28,6 +28,7 @@ import(
 		myRouter.HandleFunc("/product/{id}",services.ReturnSingleProduct).Methods("GET")
 		myRouter.HandleFunc("/user", services.CreateNewUser).Methods("POST")
 		myRouter.HandleFunc("/users", services.ReturnAllUsers).Methods("GET")
+		myRouter.HandleFunc("/user/verification/{id}",services.VerifyUserEmail).Methods("GET")
 		myRouter.HandleFunc("/user/login", services.LoginUserWithPassword).Methods("POST")
 		myRouter.HandleFunc("/user/loginViaGoogle", services.LoginUserViaGoogle).Methods("GET")
 		myRouter.HandleFunc("/googlecallback", services.HandleGoogleCallback).Methods("GET")
