@@ -308,6 +308,34 @@ var doc = `{
                 }
             }
         },
+        "/user/{authcode}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get user by authcode",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Get user by authcode",
+                        "name": "authcode",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.UserDTO"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "produces": [

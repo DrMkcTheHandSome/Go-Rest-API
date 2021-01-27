@@ -190,9 +190,10 @@ func LoginUserWithPassword(w http.ResponseWriter, r *http.Request){
 
 		fmt.Println("Login Failed, email wasn't verified")
 		w.WriteHeader(http.StatusBadRequest)
-		
+
 	 } else {
 		fmt.Println("Login Success")
+		SendTwoFactorAuthCode(user.Email)
 		globalvariables.JwtKey = "my_secret_key"
 		InitJWT(w,r,user,globalvariables.JwtKey)
 		w.WriteHeader(http.StatusOK)
@@ -366,7 +367,10 @@ func SendEmailVerification(email string, id string) {
 	</body>
 	</html>
 	`
+	SendEmail(from, subject,to,plainTextContent,htmlContent)
+}
 
+func SendEmail(from *mail.Email, subject string, to *mail.Email, plainTextContent string, htmlContent string){
 	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
 	client := sendgrid.NewSendClient(os.Getenv(constants.SendGridAPI))
 	response, err := client.Send(message)
@@ -377,6 +381,26 @@ func SendEmailVerification(email string, id string) {
 		fmt.Println(response.Body)
 		fmt.Println(response.Headers)
 	}
+}
+
+func SendTwoFactorAuthCode(email string){
+	
+	authCode := helpers.GenerateTwoFactorAuthCode(6)
+
+	from := mail.NewEmail("Marc Kenneth Lomio", "mlomio@blastasia.com")
+	subject := "Sending with Twilio SendGrid is Fun"
+	to := mail.NewEmail("Test User", email)
+	plainTextContent := ""
+	htmlContent :=  `<html>
+	<body>
+	<h1> Welcome to GoRestAPI email using send grid! </h1> 
+	<h2> Hi! here's your authentication code ` + authCode + `</h2>
+	</body>
+	</html>
+	`
+    repositories.UpdateUserAuthCode(email, authCode)
+
+	SendEmail(from, subject,to,plainTextContent,htmlContent)
 }
 
 func VerifyUserEmail(w http.ResponseWriter, r *http.Request) {
@@ -390,4 +414,12 @@ func VerifyUserEmail(w http.ResponseWriter, r *http.Request) {
 		</body>
 		</html>`
 	fmt.Fprintf(w, htmlIndex)
+}
+
+func GetUserByAuthCode(w http.ResponseWriter, r *http.Request){
+	vars := mux.Vars(r)
+	authcode := vars["authcode"]
+	var user entities.User 
+	user = repositories.GetUserByAuthCode(authcode)
+	json.NewEncoder(w).Encode(user)
 }

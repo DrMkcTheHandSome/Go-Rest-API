@@ -157,6 +157,24 @@ paths:
       summary: Create User
       tags:
       - users
+  /user/{authcode}:
+    get:
+      parameters:
+      - description: Get user by authcode
+        in: path
+        name: authcode
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.UserDTO'
+      summary: Get user by authcode
+      tags:
+      - users
   /user/login:
     post:
       parameters:

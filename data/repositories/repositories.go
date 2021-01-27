@@ -113,10 +113,30 @@ import(
 	}
 
 	func UpdateUserEmailVerification(userId string) {
-		fmt.Println("repository UpdateUser")
+		fmt.Println("repository UpdateUserEmailVerification")
 		db, err := gorm.Open(sqlserver.Open(connections.ConnectionString), &gorm.Config{})
 		if err != nil {
            panic("failed to connect database")
 		   }
 		 db.Exec("UPDATE users SET is_email_verified = 1 WHERE id = ?", userId)
+	}
+
+	func UpdateUserAuthCode(email string, auth_code string) {
+		fmt.Println("repository UpdateUserAuthCode")
+		db, err := gorm.Open(sqlserver.Open(connections.ConnectionString), &gorm.Config{})
+		if err != nil {
+           panic("failed to connect database")
+		   }
+		 db.Exec("UPDATE users SET auth_code = ? WHERE email = ?", auth_code,email)
+	}
+
+	func GetUserByAuthCode(code string) entities.User {
+		fmt.Println("repository GetUserByAuthCode")
+		db, err := gorm.Open(sqlserver.Open(connections.ConnectionString), &gorm.Config{})
+		if err != nil {
+           panic("failed to connect database")
+		   }
+		 var user entities.User
+		 db.Raw("select * from users where auth_code = ?",code).Scan(&user)  
+		 return user
 	}

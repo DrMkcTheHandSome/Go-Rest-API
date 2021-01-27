@@ -55,3 +55,11 @@ func RandStringBytes(n int) string {
     }
     return string(b)
 }
+
+func GenerateTwoFactorAuthCode(n int) string {
+    b := make([]byte, n)
+    for i := range b {
+        b[i] = constants.Numbers[rand.Intn(len(constants.Numbers))]
+    }
+    return string(b)
+}

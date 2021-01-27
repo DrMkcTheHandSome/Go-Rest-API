@@ -109,6 +109,17 @@ func CreateNewUser(w http.ResponseWriter, r *http.Request){
     services.CreateNewUser(w,r)
    }
 
+// @Summary Get user by authcode
+// @Description 
+// @Tags users
+// @Produce  json
+// @Param authcode path string true "Get user by authcode"
+// @Success 200 {object} UserDTO
+// @Router /user/{authcode} [get]
+func GetUserByAuthCode(w http.ResponseWriter, r *http.Request){
+    services.GetUserByAuthCode(w,r)
+   }
+
 // @Summary Verify user
 // @Description 
 // @Tags users
@@ -118,7 +129,7 @@ func CreateNewUser(w http.ResponseWriter, r *http.Request){
 // @Router /user/verification/{id} [get]
 func VerifyUserEmail(w http.ResponseWriter, r *http.Request){
     services.VerifyUserEmail(w,r)
-   }
+   }  
 
 // @Summary Get all users
 // @Description 
