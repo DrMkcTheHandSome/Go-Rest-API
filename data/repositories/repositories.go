@@ -22,6 +22,7 @@ import(
         //Migrate the schema
 		db.Migrator().CreateTable(&entities.Product{})
 		db.Migrator().CreateTable(&entities.User{})
+		db.Migrator().CreateTable(&entities.Scene{})	
 	}
 
 	func GetAllProducts() []entities.Product  {
@@ -139,5 +140,15 @@ import(
 		 var user entities.User
 		 db.Raw("select * from users where auth_code = ?",code).Scan(&user)  
 		 return user
+	}
+
+	func CreateScene(scene entities.Scene) entities.Scene {
+		fmt.Println("repository CreateScene")
+		db, err := gorm.Open(sqlserver.Open(connections.ConnectionString), &gorm.Config{})
+		if err != nil {
+           panic("failed to connect database")
+		   }
+	   db.Exec("INSERT INTO scenes (created_at,label,value) VALUES (?,?,?)",time.Now(), scene.Label,scene.Value)
+	   return scene
 	}
 

@@ -17,3 +17,9 @@ import(
 	IsEmailVerified bool `json:"verified_email" gorm:"column:is_email_verified"` 
 	AuthCode string `json:"auth_code" gorm:"column:auth_code"` 
    }
+
+   type Scene struct{
+	gorm.Model 
+	Label string `gorm:"column:label"`
+	Value uint  `gorm:"column:value"`
+   }

@@ -19,6 +19,11 @@ type UserDTO struct{
         IsEmailVerified bool `json:"verified_email"`
         }
 
+        type SceneDTO struct{
+            Label string    `json:"label"` 
+            Value string `json:"value"`
+         }
+         
 
 
 // @title Go Rest API
