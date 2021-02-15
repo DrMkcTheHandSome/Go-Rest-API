@@ -20,8 +20,8 @@ import(
         }
      
         //Migrate the schema
-        db.Migrator().CreateTable(&entities.Product{})
-        db.Migrator().CreateTable(&entities.User{})	
+		db.Migrator().CreateTable(&entities.Product{})
+		db.Migrator().CreateTable(&entities.User{})
 	}
 
 	func GetAllProducts() []entities.Product  {
@@ -140,3 +140,4 @@ import(
 		 db.Raw("select * from users where auth_code = ?",code).Scan(&user)  
 		 return user
 	}
+

@@ -18,7 +18,8 @@ type UserDTO struct{
         Password string `json:"password"`
         IsEmailVerified bool `json:"verified_email"`
         }
-        
+
+
 
 // @title Go Rest API
 // @version 1.0
