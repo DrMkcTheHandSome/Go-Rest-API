@@ -186,3 +186,40 @@ func LoginUserViaGoogle(w http.ResponseWriter, r *http.Request){
 func HandleGoogleCallback(w http.ResponseWriter, r *http.Request){
     services.HandleGoogleCallback(w,r)
 }
+
+// @Summary Create Scene
+// @Description 
+// @Tags scenes
+// @Produce  json
+// @Param scene body SceneDTO true "Create scene dto"
+// @Success 200 {object} SceneDTO
+// @Router /scene [post]
+func CreateScene(w http.ResponseWriter, r *http.Request){
+    w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+    services.CreateScene(w,r)
+   }
+
+// @Summary Get scene 
+// @Description 
+// @Tags scenes
+// @Produce  json
+// @Param label path string true "Get scene by label "
+// @Success 200 {object} SceneDTO
+// @Router /scene/{label} [get]
+func GetSceneByLabel(w http.ResponseWriter, r *http.Request){
+    services.GetSceneByLabel(w,r)
+   }
+
+// @Summary Update Scene
+// @Description 
+// @Tags scenes
+// @Produce  json
+// @Param id path string true "Get scene by id"
+// @Param product body SceneDTO true "Update scene dto"
+// @Success 200 {object} SceneDTO
+// @Router /scene/{id} [put]
+func UpdateScene(w http.ResponseWriter, r *http.Request){
+    services.UpdateScene(w,r)
+   }

@@ -204,6 +204,101 @@ var doc = `{
                 }
             }
         },
+        "/scene": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "scenes"
+                ],
+                "summary": "Create Scene",
+                "parameters": [
+                    {
+                        "description": "Create scene dto",
+                        "name": "scene",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.SceneDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.SceneDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/scene/{id}": {
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "scenes"
+                ],
+                "summary": "Update Scene",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Get scene by id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update scene dto",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.SceneDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.SceneDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/scene/{label}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "scenes"
+                ],
+                "summary": "Get scene",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Get scene by label ",
+                        "name": "label",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.SceneDTO"
+                        }
+                    }
+                }
+            }
+        },
         "/user": {
             "post": {
                 "produces": [
@@ -362,6 +457,17 @@ var doc = `{
                 },
                 "price": {
                     "type": "integer"
+                }
+            }
+        },
+        "main.SceneDTO": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
                 }
             }
         },

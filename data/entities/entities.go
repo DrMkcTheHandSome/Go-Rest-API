@@ -21,5 +21,5 @@ import(
    type Scene struct{
 	gorm.Model 
 	Label string `gorm:"column:label"`
-	Value uint  `gorm:"column:value"`
+	Value string  `gorm:"column:value"`
    }

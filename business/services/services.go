@@ -44,17 +44,13 @@ func CreateDatabaseSchema(w http.ResponseWriter, r *http.Request){
 }
 	
 func ReturnAllProducts(w http.ResponseWriter, r *http.Request) {
-     fmt.Println("services ReturnAllProducts")
-	
-	 isAuthorize := AuthenticateCurrentUser(w,r,globalvariables.JwtKey)
-	 if isAuthorize == nil { 
+	 fmt.Println("services ReturnAllProducts")
+	 setupCorsResponse(&w, r)
 		var products []entities.Product 
 		products = repositories.GetAllProducts()
 		 json.NewEncoder(w).Encode(products)
 		 w.WriteHeader(http.StatusOK)
-	} else {
-		w.WriteHeader(http.StatusUnauthorized)
-	}
+	
 }
 
 func CreateNewProduct(w http.ResponseWriter, r *http.Request){
@@ -428,3 +424,49 @@ func GetUserByAuthCode(w http.ResponseWriter, r *http.Request){
 		json.NewEncoder(w).Encode(user)
 	}
 }
+
+func CreateScene(w http.ResponseWriter, r *http.Request){
+	setupCorsResponse(&w, r)
+	fmt.Println("services CreateScene")
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	var scene entities.Scene 
+	json.Unmarshal(reqBody, &scene)
+	scene = repositories.CreateScene(scene)
+	json.NewEncoder(w).Encode(scene)
+	w.WriteHeader(http.StatusCreated)
+}
+
+func setupCorsResponse(w *http.ResponseWriter, req *http.Request) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Authorization")
+	(*w).Header().Set("Content-Type", "text/html; charset=utf-8")
+ }
+
+ func GetSceneByLabel(w http.ResponseWriter, r *http.Request) {
+      fmt.Println("services GetSceneByLabel")
+		vars := mux.Vars(r)
+		key := vars["label"]
+	
+		var scene entities.Scene
+			
+		scene = repositories.GetSceneByLabel(key)
+	
+		json.NewEncoder(w).Encode(scene)  
+		w.WriteHeader(http.StatusOK)	
+}
+
+func UpdateScene(w http.ResponseWriter, r *http.Request){
+	fmt.Println("services UpdateScene")
+		vars := mux.Vars(r)
+		key := vars["id"]
+		reqBody, _ := ioutil.ReadAll(r.Body)
+		var scene entities.Scene 
+ 
+		json.Unmarshal(reqBody, &scene)
+		repositories.UpdateScene(key,scene)
+		scene = repositories.GetSceneById(key)
+		json.NewEncoder(w).Encode(scene)
+		w.WriteHeader(http.StatusOK)
+}
+

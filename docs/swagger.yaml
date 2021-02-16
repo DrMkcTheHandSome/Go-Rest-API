@@ -7,6 +7,13 @@ definitions:
       price:
         type: integer
     type: object
+  main.SceneDTO:
+    properties:
+      label:
+        type: string
+      value:
+        type: string
+    type: object
   main.UserDTO:
     properties:
       email:
@@ -138,6 +145,67 @@ paths:
       summary: Get all products
       tags:
       - products
+  /scene:
+    post:
+      parameters:
+      - description: Create scene dto
+        in: body
+        name: scene
+        required: true
+        schema:
+          $ref: '#/definitions/main.SceneDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.SceneDTO'
+      summary: Create Scene
+      tags:
+      - scenes
+  /scene/{id}:
+    put:
+      parameters:
+      - description: Get scene by id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update scene dto
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/main.SceneDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.SceneDTO'
+      summary: Update Scene
+      tags:
+      - scenes
+  /scene/{label}:
+    get:
+      parameters:
+      - description: 'Get scene by label '
+        in: path
+        name: label
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.SceneDTO'
+      summary: Get scene
+      tags:
+      - scenes
   /user:
     post:
       parameters:

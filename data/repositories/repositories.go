@@ -143,6 +143,7 @@ import(
 	}
 
 	func CreateScene(scene entities.Scene) entities.Scene {
+		fmt.Println(scene.Value)
 		fmt.Println("repository CreateScene")
 		db, err := gorm.Open(sqlserver.Open(connections.ConnectionString), &gorm.Config{})
 		if err != nil {
@@ -152,3 +153,33 @@ import(
 	   return scene
 	}
 
+	func GetSceneByLabel(label string) entities.Scene {
+		fmt.Println("repository GetScene")
+		db, err := gorm.Open(sqlserver.Open(connections.ConnectionString), &gorm.Config{})
+		if err != nil {
+           panic("failed to connect database")
+		   }
+		 var scene entities.Scene
+		 db.Raw("select * from scenes where label = ?",label).Scan(&scene)  
+		 return scene
+	}
+
+	func GetSceneById(sceneId string) entities.Scene {
+		fmt.Println("repository GetScene")
+		db, err := gorm.Open(sqlserver.Open(connections.ConnectionString), &gorm.Config{})
+		if err != nil {
+           panic("failed to connect database")
+		   }
+		 var scene entities.Scene
+		 db.Raw("select * from scenes where id = ?",sceneId).Scan(&scene)  
+		 return scene
+	}
+
+	func UpdateScene(sceneId string, scene entities.Scene) {
+		fmt.Println("repository UpdateScene")
+		db, err := gorm.Open(sqlserver.Open(connections.ConnectionString), &gorm.Config{})
+		if err != nil {
+           panic("failed to connect database")
+		   }
+		 db.Exec("UPDATE scenes SET label=?, value = ? WHERE id = ?", scene.Label, scene.Value, sceneId)
+	}
