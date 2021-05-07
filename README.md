@@ -51,6 +51,10 @@ type Item struct {
 }
 ```
 
+```
+URL: http://localhost:9000/swagger/index.html#/
+```
+
 ##### References
 * https://www.soberkoder.com/swagger-go-api-swaggo/ 
 * https://github.com/soberkoder/swaggo-orders-api 
